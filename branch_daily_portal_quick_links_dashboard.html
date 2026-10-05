@@ -486,6 +486,10 @@
       <button data-category="all" class="category-pill active flex-shrink-0 px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all mint-pill-btn text-white">
         ทั้งหมด
       </button>
+      <button data-category="starred" class="category-pill flex-shrink-0 px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all neu-btn text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+        <i data-lucide="star" class="w-3.5 h-3.5 text-amber-500 fill-amber-400"></i>
+        <span>⭐ ติดดาวใช้บ่อย</span>
+      </button>
       <button data-category="loan" class="category-pill flex-shrink-0 px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all neu-btn text-slate-700 dark:text-slate-200">
         📝 สินเชื่อ
       </button>
@@ -966,12 +970,49 @@
     const DAYS_OF_WEEK = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
     const STORAGE_KEY = "branch_hub_items_v2";
+    const STAR_STORAGE_KEY = "branch_hub_user_starred_v1";
     const SHEET_API_KEY = "branch_hub_sheet_api_url";
     const DEFAULT_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbx7sWcY2HBBmdV1_yGwEbqKhebXst5mte4o_0SduSILH2H8K34NsjXtMbw6OmXbVRkieA/exec";
     let isCloudSyncing = false;
     let items = [];
     let currentCategory = "all";
     let searchQuery = "";
+
+    // ระบบติดดาวส่วนตัวสำหรับผู้ใช้แต่ละคน (Personal Starring)
+    function getUserStarredIds() {
+      const stored = localStorage.getItem(STAR_STORAGE_KEY);
+      if (stored !== null) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) return parsed;
+        } catch (e) {}
+      }
+      // ค่าเริ่มต้นสำหรับคนเข้าใช้ใหม่: รายการที่มี pinned = true
+      return items.filter(x => x.pinned).map(x => x.id);
+    }
+
+    function isItemStarred(id) {
+      return getUserStarredIds().includes(id);
+    }
+
+    function toggleItemStar(id) {
+      const current = getUserStarredIds();
+      const idx = current.indexOf(id);
+      let updated;
+      const target = items.find(x => x.id === id);
+      const title = target ? target.title : "รายการ";
+
+      if (idx >= 0) {
+        updated = current.filter(x => x !== id);
+        localStorage.setItem(STAR_STORAGE_KEY, JSON.stringify(updated));
+        showToast(`ยกเลิกติดดาว "${title}"`);
+      } else {
+        updated = [...current, id];
+        localStorage.setItem(STAR_STORAGE_KEY, JSON.stringify(updated));
+        showToast(`⭐ ติดดาว "${title}" เข้าบ่อยเรียบร้อยแล้ว!`);
+      }
+      renderApp();
+    }
 
     // Load from LocalStorage
     function loadItems() {
@@ -1561,18 +1602,34 @@
       };
     }
 
-    // Render Quick Action Pinned Buttons
+    // Render Quick Action Pinned Buttons (รายการเข้าบ่อยที่ผู้ใช้ติดดาวไว้)
     function renderPinnedItems() {
       const pinnedContainer = document.getElementById("pinned-grid");
-      const pinnedItems = items.filter(it => it.pinned);
+      const starredIds = getUserStarredIds();
+      const pinnedItems = items.filter(it => starredIds.includes(it.id));
       
       pinnedContainer.innerHTML = "";
+
+      if (pinnedItems.length === 0) {
+        pinnedContainer.innerHTML = `
+          <div class="col-span-full p-4 rounded-2xl neu-inset text-center text-xs text-slate-500 dark:text-slate-400 flex flex-col sm:flex-row items-center justify-center gap-2">
+            <span class="flex items-center gap-1.5 font-bold text-amber-600 dark:text-amber-400">
+              <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-500"></i>
+              ยังไม่มีรายการที่ติดดาวไว้
+            </span>
+            <span class="text-slate-400 dark:text-slate-500">คลิกที่ปุ่มรูปดาว ⭐ บนการ์ดใดก็ได้ เพื่อปักหมุดเป็นทางลัดเข้าบ่อยส่วนตัวของคุณ</span>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
       pinnedItems.forEach((item, index) => {
         const sched = getScheduleStatus(item);
         const pulseClass = (sched && sched.pulseCard) ? "card-urgent-pulse" : "";
 
         const btn = document.createElement("div");
-        btn.className = `neu-btn p-3 rounded-2xl flex items-center gap-3 cursor-pointer group transition-all duration-200 hover:-translate-y-1 ${pulseClass}`;
+        btn.className = `neu-btn p-3 rounded-2xl flex items-center justify-between gap-2.5 group transition-all duration-200 hover:-translate-y-1 relative ${pulseClass}`;
         btn.style.animation = `cardEntrance 0.35s cubic-bezier(0.16, 1, 0.3, 1) both ${index * 40}ms`;
 
         let pingDotHtml = "";
@@ -1584,10 +1641,8 @@
               pingDotHtml = `<span class="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-amber-500 ring-2 ring-white animate-ping"></span><span class="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-amber-500 ring-2 ring-white"></span>`;
               badgePillHtml = `<span class="text-[9px] px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700 font-bold border border-amber-300 animate-pulse">${sched.shortLabel}</span>`;
             } else if (sched.isOverdue) {
-              // เลยเวลาแล้ว แสดงแบบปกติ ไม่กระพริบ
               badgePillHtml = `<span class="text-[9px] px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500 border border-slate-200/80">${sched.shortLabel}</span>`;
             } else {
-              // ก่อนถึงช่วงส่ง แสดงปกติ
               badgePillHtml = `<span class="text-[9px] px-1.5 py-0.5 rounded-md bg-teal-50 text-teal-700 font-semibold border border-teal-200">${sched.shortLabel}</span>`;
             }
           } else {
@@ -1596,21 +1651,31 @@
         }
 
         btn.innerHTML = `
-          <div class="w-10 h-10 rounded-2xl flex-shrink-0 flex items-center justify-center clay-icon text-teal-600 dark:text-teal-400 transition-transform group-hover:scale-105 relative">
-            <i data-lucide="${item.icon || 'link'}" class="w-5 h-5"></i>
-            ${pingDotHtml}
-          </div>
-          <div class="min-w-0 flex-1">
-            <h4 class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors leading-snug break-words">${item.title}</h4>
-            <div class="flex items-center gap-1.5 mt-0.5">
-              <span class="text-[10px] text-teal-600 dark:text-teal-400 font-semibold truncate">${CATEGORY_NAMES[item.category] || 'ระบบงาน'}</span>
-              ${badgePillHtml}
+          <div class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer btn-open-link" data-url="${item.url}">
+            <div class="w-10 h-10 rounded-2xl flex-shrink-0 flex items-center justify-center clay-icon text-teal-600 dark:text-teal-400 transition-transform group-hover:scale-105 relative">
+              <i data-lucide="${item.icon || 'link'}" class="w-5 h-5"></i>
+              ${pingDotHtml}
+            </div>
+            <div class="min-w-0 flex-1">
+              <h4 class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors leading-snug break-words">${item.title}</h4>
+              <div class="flex items-center gap-1.5 mt-0.5">
+                <span class="text-[10px] text-teal-600 dark:text-teal-400 font-semibold truncate">${CATEGORY_NAMES[item.category] || 'ระบบงาน'}</span>
+                ${badgePillHtml}
+              </div>
             </div>
           </div>
+          <button class="btn-quick-unstar p-1.5 rounded-xl text-amber-500 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors flex-shrink-0" data-id="${item.id}" title="คลิกเพื่อยกเลิกติดดาว">
+            <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+          </button>
         `;
 
-        btn.addEventListener("click", () => {
+        btn.querySelector(".btn-open-link").addEventListener("click", () => {
           window.open(item.url, "_blank");
+        });
+
+        btn.querySelector(".btn-quick-unstar").addEventListener("click", (e) => {
+          e.stopPropagation();
+          toggleItemStar(item.id);
         });
 
         pinnedContainer.appendChild(btn);
@@ -1622,10 +1687,30 @@
       const grid = document.getElementById("links-grid");
       const emptyState = document.getElementById("empty-state");
       const countBadge = document.getElementById("items-count-badge");
+      const sectionTitle = document.getElementById("section-title");
 
-      // Filter logic
+      // Dynamic Section Title
+      if (sectionTitle) {
+        if (currentCategory === "starred") {
+          sectionTitle.textContent = "⭐ รายการที่คุณติดดาวไว้ (เข้าบ่อยเฉพาะคุณ)";
+        } else if (currentCategory === "all") {
+          sectionTitle.textContent = "รายการระบบงานทั้งหมด";
+        } else {
+          sectionTitle.textContent = `หมวดหมู่: ${CATEGORY_NAMES[currentCategory] || currentCategory}`;
+        }
+      }
+
+      // Filter logic (รองรับหมวดติดดาว starred)
       const filtered = items.filter(item => {
-        const matchesCat = (currentCategory === "all") || (item.category === currentCategory);
+        let matchesCat = false;
+        if (currentCategory === "all") {
+          matchesCat = true;
+        } else if (currentCategory === "starred") {
+          matchesCat = isItemStarred(item.id);
+        } else {
+          matchesCat = (item.category === currentCategory);
+        }
+
         const q = searchQuery.toLowerCase().trim();
         const matchesQuery = !q || 
           item.title.toLowerCase().includes(q) || 
@@ -1639,6 +1724,12 @@
 
       if (filtered.length === 0) {
         emptyState.classList.remove("hidden");
+        const emptyMsg = emptyState.querySelector("p");
+        if (emptyMsg) {
+          emptyMsg.textContent = currentCategory === "starred"
+            ? "ยังไม่มีรายการที่คุณติดดาวไว้ คลิกรูปดาว ⭐ บนการ์ดใดก็ได้เพื่อเพิ่ม"
+            : "ไม่พบระบบงานที่ตรงกับคำค้นหาหรือหมวดหมู่ที่เลือก";
+        }
       } else {
         emptyState.classList.add("hidden");
       }
@@ -1646,6 +1737,7 @@
       filtered.forEach((item, index) => {
         const sched = getScheduleStatus(item);
         const cardPulseClass = (sched && sched.pulseCard) ? "card-urgent-pulse" : "";
+        const isStarred = isItemStarred(item.id);
 
         const card = document.createElement("div");
         card.className = `group relative neu-surface tilt-card shimmer-card rounded-[28px] p-5 sm:p-5.5 transition-all flex flex-col justify-between ${cardPulseClass}`;
@@ -1667,15 +1759,18 @@
 
         card.innerHTML = `
           <div>
-            <!-- Top Card Header: 3D Squircle Icon & Category Badge -->
+            <!-- Top Card Header: 3D Squircle Icon & Actions -->
             <div class="flex items-start justify-between gap-3 mb-3.5">
               <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 clay-icon text-teal-600 dark:text-teal-400">
                 <i data-lucide="${item.icon || 'link'}" class="w-6 h-6"></i>
               </div>
               <div class="flex items-center gap-1">
-                <span class="px-3 py-1 rounded-full text-[11px] font-semibold bg-teal-50/80 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 border border-teal-200/50">
+                <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-teal-50/80 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 border border-teal-200/50">
                   ${CATEGORY_NAMES[item.category] || 'ทั่วไป'}
                 </span>
+                <button class="btn-item-star p-1.5 rounded-xl transition-all active:scale-90 ${isStarred ? 'neu-inset text-amber-500 border border-amber-300/80 dark:border-amber-600/60' : 'neu-btn text-slate-300 dark:text-slate-500 hover:text-amber-500'}" data-id="${item.id}" title="${isStarred ? 'คลิกเพื่อยกเลิกติดดาว' : 'ติดดาว (ปักหมุดไว้ที่เข้าบ่อยประจำวัน)'}">
+                  <i data-lucide="star" class="w-4 h-4 ${isStarred ? 'fill-amber-400 text-amber-500' : ''}"></i>
+                </button>
                 <button class="btn-item-edit p-1.5 text-slate-400 hover:text-teal-600 rounded-lg transition-colors" data-id="${item.id}" title="แก้ไขชื่อหรือข้อมูลรายการนี้">
                   <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
                 </button>
@@ -1714,6 +1809,14 @@
       });
 
       // Bind Event Listeners on newly rendered buttons
+      grid.querySelectorAll(".btn-item-star").forEach(b => {
+        b.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const targetId = b.dataset.id;
+          toggleItemStar(targetId);
+        });
+      });
+
       grid.querySelectorAll(".btn-copy-url").forEach(b => {
         b.addEventListener("click", (e) => {
           e.stopPropagation();
