@@ -2080,7 +2080,11 @@
           addChangeLog("edit", title, `แก้ไขข้อมูล (${detailStr})`);
           saveItems(false);
           renderApp();
-          saveItemToGoogleSheet(items[existingIndex]);
+          try {
+            saveItemToGoogleSheet(items[index]);
+          } catch (cloudErr) {
+            console.warn("Could not sync item to Google Sheets:", cloudErr);
+          }
           closeManageModal();
           showToast("บันทึกการแก้ไขเรียบร้อยแล้ว");
           return;
@@ -2112,7 +2116,11 @@
       items.unshift(newItem);
       saveItems(false);
       renderApp();
-      saveItemToGoogleSheet(newItem);
+      try {
+        saveItemToGoogleSheet(newItem);
+      } catch (cloudErr) {
+        console.warn("Could not sync item to Google Sheets:", cloudErr);
+      }
       closeManageModal();
       showToast("เพิ่มรายการใหม่เรียบร้อยแล้ว");
     });
