@@ -1667,18 +1667,27 @@
             </div>
           </div>
           <div class="flex items-center gap-1.5 flex-shrink-0">
+            <button class="btn-pinned-qr neu-btn w-9 h-9 rounded-full text-teal-600 dark:text-teal-400 flex items-center justify-center transition-all touch-press hover:text-teal-700" data-id="${item.id}" title="แสดง QR Code สำหรับสแกน">
+              <i data-lucide="qr-code" class="w-4 h-4"></i>
+            </button>
             <button class="btn-quick-unstar p-2 rounded-xl text-amber-500 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors touch-press" data-id="${item.id}" title="คลิกเพื่อยกเลิกติดดาว">
               <i data-lucide="star" class="w-5 h-5 fill-amber-400"></i>
             </button>
-            <div class="w-8 h-8 rounded-full neu-btn text-teal-600 group-hover:bg-teal-500 group-hover:text-white transition-colors hidden sm:flex items-center justify-center">
-              <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
-            </div>
           </div>
         `;
 
         btn.querySelector(".btn-open-link").addEventListener("click", () => {
           window.open(item.url, "_blank");
         });
+
+        const qrBtn = btn.querySelector(".btn-pinned-qr");
+        if (qrBtn) {
+          qrBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const target = items.find(x => x.id === item.id);
+            if (target) openQrModal(target);
+          });
+        }
 
         btn.querySelector(".btn-quick-unstar").addEventListener("click", (e) => {
           e.stopPropagation();
