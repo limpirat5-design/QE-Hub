@@ -1,8 +1,8 @@
-# Branch Hub - ระบบศูนย์รวมงานและลิงก์สาขา (QE Hub)
+# Branch Hub - ระบบศูนย์รวมงานและลิงก์สาขา (QR Hub)
 
 ระบบเว็บพอร์ทัลรวมลิงก์ประจำวันสำหรับเจ้าหน้าที่สาขา สไตล์ **Pure Neumorphic Soft UI** เชื่อมต่อฐานข้อมูลคลาวด์ **Google Sheets** แบบ Real-Time โดยไม่ต้องใช้รหัสผ่าน พร้อมระบบแจ้งเตือนกำหนดเวลาส่งงาน และระบบประวัติการใช้งาน (Audit Log)
 
-🌐 **Live Website (GitHub Pages):** [https://limpirat5-design.github.io/QE-Hub/](https://limpirat5-design.github.io/QE-Hub/)
+🌐 **Live Website (GitHub Pages):** [https://limpirat5-design.github.io/QR-Hub/](https://limpirat5-design.github.io/QR-Hub/)
 
 ---
 
@@ -46,8 +46,8 @@ QR-Hub/
 
 ## 🚀 การติดตั้งและเปิดใช้งาน GitHub Pages
 
-1. เข้าไปที่คลังข้อมูลบน GitHub: `https://github.com/limpirat5-design/QE-Hub`
+1. เข้าไปที่คลังข้อมูลบน GitHub: `https://github.com/limpirat5-design/QR-Hub`
 2. ไปที่เมนู **Settings** -> **Pages**
 3. ที่หัวข้อ **Build and deployment** -> เลือก Branch: `main` (หรือ `master`) และ Folder: `/ (root)`
 4. กดปุ่ม **Save**
-5. รอระบบประมวลผลประมาณ 1-2 นาที เว็บไซต์จะเปิดใช้งานได้ที่ `https://limpirat5-design.github.io/QE-Hub/`
+5. รอระบบประมวลผลประมาณ 1-2 นาที เว็บไซต์จะเปิดใช้งานได้ที่ `https://limpirat5-design.github.io/QR-Hub/`
