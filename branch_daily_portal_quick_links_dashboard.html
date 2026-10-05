@@ -1,0 +1,2533 @@
+<!DOCTYPE html>
+<html lang="th" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Branch Hub - ศูนย์รวมระบบงานและลิงก์สาขา</title>
+  
+  <!-- Favicon & iOS Web App Meta -->
+  <meta name="theme-color" content="#14b8a6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Branch Hub">
+
+  <!-- Google Fonts: Inter, Prompt & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Prompt', 'Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            teal: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              200: '#99f6e4',
+              300: '#5eead4',
+              400: '#2dd4bf',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+              800: '#115e59',
+              900: '#134e4a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Neumorphic Soft UI & Claymorphism Custom Styles -->
+  <style>
+    :root {
+      --bg-color: #ebf1f5;
+      --neu-base: #ebf1f5;
+      --neu-shadow-dark: #c6d0dc;
+      --neu-shadow-light: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+    }
+
+    .dark {
+      --bg-color: #0c121e;
+      --neu-base: #111a2c;
+      --neu-shadow-dark: #060910;
+      --neu-shadow-light: #1a2740;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(20, 184, 166, 0.09) 0px, transparent 45%),
+        radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.08) 0px, transparent 45%),
+        radial-gradient(at 50% 50%, rgba(240, 249, 255, 0.4) 0px, transparent 60%);
+      min-height: 100vh;
+    }
+
+    /* Smooth Scrollbar hide */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Touch Optimization */
+    button, a {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .touch-press:active {
+      transform: scale(0.97);
+    }
+
+    /* Neumorphic Flat / Convex Card */
+    .neu-surface {
+      background: var(--neu-base);
+      box-shadow: 8px 8px 18px var(--neu-shadow-dark), -8px -8px 18px var(--neu-shadow-light);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+    }
+    .dark .neu-surface {
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Staggered Card Entrance Animation */
+    @keyframes cardEntrance {
+      0% {
+        opacity: 0;
+        transform: translateY(18px) scale(0.97);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* 3D Tilt & Specular Glare */
+    .tilt-card {
+      transform-style: preserve-3d;
+      transition: transform 0.16s ease-out, box-shadow 0.25s ease;
+      position: relative;
+      overflow: hidden;
+      will-change: transform;
+    }
+    .tilt-card:hover {
+      box-shadow: 12px 14px 28px var(--neu-shadow-dark), -12px -14px 28px var(--neu-shadow-light);
+    }
+    .glare-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: inherit;
+      background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.4) 0%, transparent 65%);
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      mix-blend-mode: overlay;
+    }
+    .dark .glare-layer {
+      background: radial-gradient(circle at 50% 50%, rgba(45, 212, 191, 0.2) 0%, transparent 65%);
+      mix-blend-mode: screen;
+    }
+
+    /* Shimmer Sweep Animation on Hover */
+    .shimmer-card {
+      position: relative;
+    }
+    .shimmer-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -120%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transform: skewX(-20deg);
+      pointer-events: none;
+      transition: left 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .shimmer-card:hover::before {
+      left: 160%;
+    }
+
+    /* 3D Floating Icon Animation */
+    .clay-icon {
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    }
+    .clay-icon:hover {
+      transform: translateY(-2px) scale(1.08) rotate(-2deg);
+    }
+
+    /* Neumorphic Interactive Button */
+    .neu-btn {
+      background: var(--neu-base);
+      box-shadow: 5px 5px 12px var(--neu-shadow-dark), -5px -5px 12px var(--neu-shadow-light);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .neu-btn:hover {
+      box-shadow: 6px 6px 14px var(--neu-shadow-dark), -6px -6px 14px var(--neu-shadow-light);
+      transform: translateY(-1px);
+    }
+    .neu-btn:active {
+      box-shadow: inset 3px 3px 6px var(--neu-shadow-dark), inset -3px -3px 6px var(--neu-shadow-light);
+      transform: translateY(1px);
+    }
+    .dark .neu-btn {
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    /* Neumorphic Inset / Concave */
+    .neu-inset {
+      background: var(--neu-base);
+      box-shadow: inset 3px 3px 7px var(--neu-shadow-dark), inset -3px -3px 7px var(--neu-shadow-light);
+      border: 1px solid rgba(198, 208, 220, 0.5);
+    }
+    .dark .neu-inset {
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Mint & Teal Vibrant Gradient Capsule */
+    .mint-pill-btn {
+      background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+      box-shadow: 0 8px 18px -4px rgba(20, 184, 166, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+      transition: all 0.2s ease;
+    }
+    .mint-pill-btn:hover {
+      box-shadow: 0 10px 22px -3px rgba(20, 184, 166, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+      transform: translateY(-1px);
+    }
+    .mint-pill-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 4px 10px -2px rgba(20, 184, 166, 0.4);
+    }
+
+    /* 3D Clay Squircle Icon Base */
+    .clay-icon {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(235, 241, 245, 0.8));
+      box-shadow: 4px 4px 10px var(--neu-shadow-dark), -4px -4px 10px var(--neu-shadow-light), inset 0 1px 2px rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+    }
+    .dark .clay-icon {
+      background: linear-gradient(135deg, #1a263d, #111a2c);
+      box-shadow: 4px 4px 10px var(--neu-shadow-dark), -4px -4px 10px var(--neu-shadow-light), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Vibrant Category-Specific Clay Squircle Icons */
+    .clay-icon-blue {
+      background: linear-gradient(135deg, rgba(239, 246, 255, 0.98), rgba(219, 234, 254, 0.9));
+      box-shadow: 4px 4px 10px var(--neu-shadow-dark), -4px -4px 10px var(--neu-shadow-light), inset 0 1px 2px rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(147, 197, 253, 0.8);
+    }
+    .dark .clay-icon-blue {
+      background: linear-gradient(135deg, #1e3a8a, #0f172a);
+      box-shadow: 4px 4px 10px var(--neu-shadow-dark), -4px -4px 10px var(--neu-shadow-light);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .clay-icon-amber {
+      background: linear-gradient(135deg, rgba(254, 243, 199, 0.98), rgba(253, 230, 138, 0.9));
+      box-shadow: 4px 4px 10px var(--neu-shadow-dark), -4px -4px 10px var(--neu-shadow-light), inset 0 1px 2px rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(252, 211, 77, 0.8);
+    }
+    .dark .clay-icon-amber {
+      background: linear-gradient(135deg, #78350f, #1c1917);
+      box-shadow: 4px 4px 10px var(--neu-shadow-dark), -4px -4px 10px var(--neu-shadow-light);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .clay-icon-purple {
+      background: linear-gradient(135deg, rgba(245, 243, 255, 0.98), rgba(237, 233, 254, 0.9));
+      box-shadow: 4px 4px 10px var(--neu-shadow-dark), -4px -4px 10px var(--neu-shadow-light), inset 0 1px 2px rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(196, 181, 253, 0.8);
+    }
+    .dark .clay-icon-purple {
+      background: linear-gradient(135deg, #581c87, #0f172a);
+      box-shadow: 4px 4px 10px var(--neu-shadow-dark), -4px -4px 10px var(--neu-shadow-light);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    .clay-icon-emerald {
+      background: linear-gradient(135deg, rgba(236, 253, 245, 0.98), rgba(209, 250, 229, 0.9));
+      box-shadow: 4px 4px 10px var(--neu-shadow-dark), -4px -4px 10px var(--neu-shadow-light), inset 0 1px 2px rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(110, 231, 183, 0.8);
+    }
+    .dark .clay-icon-emerald {
+      background: linear-gradient(135deg, #064e3b, #022c22);
+      box-shadow: 4px 4px 10px var(--neu-shadow-dark), -4px -4px 10px var(--neu-shadow-light);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* Vibrant Action Capsule Buttons per Category */
+    .btn-cat-blue {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      box-shadow: 0 8px 18px -4px rgba(37, 99, 235, 0.42), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    }
+    .btn-cat-blue:hover {
+      box-shadow: 0 10px 22px -3px rgba(37, 99, 235, 0.52), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+    }
+
+    .btn-cat-amber {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      box-shadow: 0 8px 18px -4px rgba(217, 119, 6, 0.42), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    }
+    .btn-cat-amber:hover {
+      box-shadow: 0 10px 22px -3px rgba(217, 119, 6, 0.52), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+    }
+
+    .btn-cat-purple {
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      box-shadow: 0 8px 18px -4px rgba(124, 58, 237, 0.42), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    }
+    .btn-cat-purple:hover {
+      box-shadow: 0 10px 22px -3px rgba(124, 58, 237, 0.52), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+    }
+
+    .btn-cat-emerald {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      box-shadow: 0 8px 18px -4px rgba(5, 150, 105, 0.42), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    }
+    .btn-cat-emerald:hover {
+      box-shadow: 0 10px 22px -3px rgba(5, 150, 105, 0.52), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+    }
+
+    /* Pulsing & Blinking Beacon for Due Time Alert */
+    @keyframes alertBeacon {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 0 0 7px rgba(245, 158, 11, 0);
+        transform: scale(1.02);
+      }
+    }
+    .badge-urgent-pulse {
+      animation: alertBeacon 1.6s infinite ease-in-out;
+    }
+
+    @keyframes alertDangerBeacon {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.75);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+        transform: scale(1.02);
+      }
+    }
+    .badge-danger-pulse {
+      animation: alertDangerBeacon 1.3s infinite ease-in-out;
+    }
+
+    /* Whole Card Breathing Glow Animation for Urgent Submission */
+    @keyframes wholeCardUrgentPulse {
+      0%, 100% {
+        box-shadow: 8px 8px 18px var(--neu-shadow-dark), -8px -8px 18px var(--neu-shadow-light), 0 0 0 1.5px rgba(245, 158, 11, 0.4);
+        border-color: rgba(245, 158, 11, 0.55);
+        transform: translateY(0) scale(1);
+      }
+      50% {
+        box-shadow: 12px 14px 28px var(--neu-shadow-dark), -12px -14px 28px var(--neu-shadow-light), 0 0 24px 5px rgba(245, 158, 11, 0.42);
+        border-color: rgba(245, 158, 11, 0.95);
+        transform: translateY(-2px) scale(1.012);
+      }
+    }
+    .card-urgent-pulse {
+      animation: wholeCardUrgentPulse 2.2s infinite ease-in-out !important;
+      border: 2px solid rgba(245, 158, 11, 0.75) !important;
+      position: relative;
+      z-index: 5;
+    }
+    .dark .card-urgent-pulse {
+      animation: wholeCardUrgentPulse 2.2s infinite ease-in-out !important;
+      border: 2px solid rgba(245, 158, 11, 0.8) !important;
+    }
+  </style>
+</head>
+
+<body class="font-sans transition-colors duration-200 antialiased selection:bg-teal-500 selection:text-white pb-24">
+
+  <!-- Notification Toast Container -->
+  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 transform transition-all duration-300 -translate-y-20 opacity-0 pointer-events-none flex items-center gap-2.5 px-5 py-3 rounded-full neu-surface text-slate-800 dark:text-white text-sm font-semibold border border-teal-500/20 backdrop-blur-md">
+    <i data-lucide="check-circle-2" class="w-5 h-5 text-teal-500"></i>
+    <span id="toast-message">คัดลอกลิงก์สำเร็จแล้ว!</span>
+  </div>
+
+  <!-- Top Navigation & Branding -->
+  <header class="sticky top-0 z-40 bg-[#ebf1f5]/85 dark:bg-[#0c121e]/85 backdrop-blur-xl border-b border-white/60 dark:border-white/5 transition-colors">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-18 sm:h-20 gap-3">
+        <!-- Logo & Title -->
+        <div class="flex items-center gap-3.5">
+          <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl mint-pill-btn flex items-center justify-center text-white flex-shrink-0">
+            <i data-lucide="layout-grid" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 id="portal-title-text" class="text-base sm:text-xl font-bold tracking-tight text-slate-800 dark:text-white leading-tight cursor-pointer hover:text-teal-600 transition-colors" title="คลิกเพื่อแก้ไขชื่อ">Branch Hub</h1>
+              <button id="btn-edit-portal-title" class="p-1 text-slate-400 hover:text-teal-600 rounded-full transition-colors" title="แก้ไขชื่อสาขา/ระบบ">
+                <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+              </button>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 border border-teal-200/60 dark:border-teal-800/60">
+                <span class="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse"></span> ออนไลน์
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-normal">ศูนย์รวมระบบงานและลิงก์ประจำวันสาขา</p>
+          </div>
+        </div>
+
+        <!-- Header Actions: 24-Hour Clock, Theme & Manage Modal -->
+        <div class="flex items-center gap-2 sm:gap-2.5">
+          <!-- Real-Time 24-Hour Digital Clock Capsule -->
+          <div id="live-clock-badge" class="neu-btn px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full flex items-center gap-1.5 text-slate-700 dark:text-slate-200 select-none" title="เวลาปัจจุบัน (ระบบ 24 ชั่วโมง)">
+            <i data-lucide="clock" class="w-3.5 h-3.5 text-teal-600 dark:text-teal-400"></i>
+            <span id="live-clock-time" class="font-mono text-xs sm:text-sm font-bold tracking-wider text-slate-800 dark:text-white">00:00:00</span>
+            <span class="text-[9px] font-extrabold px-1 py-0.5 rounded bg-teal-100/70 dark:bg-teal-950/80 text-teal-700 dark:text-teal-300 hidden sm:inline leading-none">24H</span>
+          </div>
+
+          <!-- User Profile Identity Capsule -->
+          <button id="btn-user-profile" class="neu-btn px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 touch-press" title="คลิกเพื่อระบุหรือเปลี่ยนชื่อผู้ใช้งาน">
+            <i data-lucide="user" class="w-3.5 h-3.5 text-teal-600 dark:text-teal-400"></i>
+            <span id="current-user-display" class="truncate max-w-[85px] sm:max-w-[130px]">ผู้ใช้: สาขา</span>
+          </button>
+
+          <button id="btn-theme-toggle" class="neu-btn p-2 sm:p-2.5 rounded-full text-slate-600 dark:text-slate-300" title="สลับธีม สว่าง/มืด" aria-label="Toggle Dark Mode">
+            <i data-lucide="moon" class="w-4 h-4 sm:w-5 sm:h-5 hidden dark:block"></i>
+            <i data-lucide="sun" class="w-4 h-4 sm:w-5 sm:h-5 block dark:hidden text-amber-500"></i>
+          </button>
+
+          <!-- Google Sheets Cloud Sync Capsule -->
+          <button id="btn-open-sync-modal" class="neu-btn px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 touch-press transition-colors" title="เชื่อมต่อและซิงค์ข้อมูลกับ Google Sheets กลาง">
+            <span id="sync-status-dot" class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+            <span id="sync-status-label" class="hidden sm:inline">Google Sheets</span>
+          </button>
+
+          <!-- Audit Log Button -->
+          <button id="btn-open-log-modal" class="neu-btn px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 touch-press transition-colors" title="ดูประวัติการเปลี่ยนแปลง (ใครทำอะไรกับระบบ)">
+            <i data-lucide="clipboard-list" class="w-3.5 h-3.5 text-teal-600 dark:text-teal-400"></i>
+            <span class="hidden sm:inline">ประวัติ</span>
+            <span id="log-count-pill" class="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300">0</span>
+          </button>
+
+          <button id="btn-open-manage-modal" class="neu-btn inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-teal-700 dark:text-teal-300 text-xs sm:text-sm font-semibold hover:text-teal-800" title="จัดการข้อมูลลิงก์">
+            <i data-lucide="settings" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">จัดการข้อมูล</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Top Floating Urgent Alert Banner (ลอยแจ้งเตือนด่วนเมื่อถึงเวลาส่ง) -->
+  <div id="top-urgent-banner" class="hidden sticky top-20 z-30 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 transition-all duration-300">
+    <div class="neu-surface rounded-2xl p-3.5 sm:p-4 border-2 border-amber-500/90 dark:border-amber-400/90 shadow-[0_10px_30px_rgba(245,158,11,0.28)] flex items-center justify-between gap-3 animate-pulse">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center flex-shrink-0 shadow-md">
+          <i data-lucide="bell-ring" class="w-5 h-5 animate-bounce"></i>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 uppercase tracking-wider">🔔 ถึงเวลาส่งงานแล้ว!</span>
+            <span id="urgent-banner-time" class="text-xs font-bold text-amber-700 dark:text-amber-400"></span>
+          </div>
+          <h4 id="urgent-banner-title" class="text-xs sm:text-sm font-bold text-slate-800 dark:text-white truncate mt-0.5"></h4>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <a id="urgent-banner-btn" href="#" target="_blank" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center gap-1.5 touch-press">
+          <span>เปิดระบบทันที</span>
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+    
+    <!-- Search Bar with Neumorphic Inset (Concave) -->
+    <div class="relative mb-6">
+      <div class="neu-inset rounded-full flex items-center px-4 py-1.5 transition-all">
+        <div class="pl-1 pr-3 flex items-center pointer-events-none text-teal-600 dark:text-teal-400">
+          <i data-lucide="search" class="w-5 h-5"></i>
+        </div>
+        <input type="text" id="search-input" placeholder="ค้นหาชื่อระบบ, คำค้น หรือลิงก์งานสาขา..." 
+          class="w-full py-2.5 text-sm sm:text-base bg-transparent border-none focus:outline-none text-slate-800 dark:text-white placeholder-slate-400 font-medium">
+        <button id="btn-clear-search" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hidden">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Category Filter Pills (Soft Neumorphic Pills) -->
+    <div class="flex items-center gap-2.5 overflow-x-auto no-scrollbar pb-3 pt-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+      <button data-category="all" class="category-pill active flex-shrink-0 px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all mint-pill-btn text-white">
+        ทั้งหมด
+      </button>
+      <button data-category="loan" class="category-pill flex-shrink-0 px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all neu-btn text-slate-700 dark:text-slate-200">
+        📝 สินเชื่อ
+      </button>
+      <button data-category="reports" class="category-pill flex-shrink-0 px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all neu-btn text-slate-700 dark:text-slate-200">
+        📊 รายงานประจำวัน
+      </button>
+      <button data-category="insurance" class="category-pill flex-shrink-0 px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all neu-btn text-slate-700 dark:text-slate-200">
+        🛡️ ประกัน
+      </button>
+      <button data-category="other" class="category-pill flex-shrink-0 px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all neu-btn text-slate-700 dark:text-slate-200">
+        📁 อื่นๆ
+      </button>
+    </div>
+
+    <!-- Quick Access Favorites / Pinned Bar (Like iOS Quick Actions in Reference Image) -->
+    <section class="mt-5 mb-8" id="pinned-section">
+      <div class="flex items-center justify-between mb-3 px-1">
+        <h2 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+          <i data-lucide="star" class="w-4 h-4 text-amber-500 fill-amber-500"></i> เข้าบ่อยประจำวัน
+        </h2>
+        <span class="text-xs text-teal-600 dark:text-teal-400 font-medium">กดเปิดด่วนทันที</span>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4" id="pinned-grid">
+        <!-- Pinned items will be rendered here dynamically -->
+      </div>
+    </section>
+
+    <!-- All Links Section -->
+    <section>
+      <div class="flex items-center justify-between mb-4 px-1">
+        <div class="flex items-center gap-2.5">
+          <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white" id="section-title">
+            รายการระบบงานทั้งหมด
+          </h2>
+          <span id="items-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold neu-inset text-slate-600 dark:text-slate-300">
+            0 รายการ
+          </span>
+        </div>
+        <button id="btn-add-quick" class="text-xs sm:text-sm font-semibold text-teal-600 dark:text-teal-400 hover:text-teal-700 flex items-center gap-1.5 transition-colors">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> เพิ่มรายการใหม่
+        </button>
+      </div>
+
+      <!-- Links Grid with Soft Neumorphic Cards -->
+      <div id="links-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        <!-- Dynamic Cards inserted here -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="hidden py-16 text-center">
+        <div class="w-16 h-16 rounded-3xl neu-surface mx-auto flex items-center justify-center text-slate-400 mb-3.5">
+          <i data-lucide="search-x" class="w-8 h-8 text-teal-500"></i>
+        </div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200">ไม่พบรายการที่ค้นหา</h3>
+        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-xs mx-auto">ลองเปลี่ยนคำค้นหา หรือเลือกหมวดหมู่อื่นดูนะครับ</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- QR Code Pop-up Modal for Customer Scanning on iPad/Phone -->
+  <div id="qr-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md hidden opacity-0 transition-opacity duration-200 flex items-center justify-center p-4">
+    <div class="relative w-full max-w-sm neu-surface rounded-[32px] p-6 text-center transform scale-95 transition-transform duration-200" id="qr-modal-card">
+      <!-- Close Button -->
+      <button id="btn-close-qr-modal" class="absolute top-4 right-4 neu-btn w-9 h-9 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center justify-center">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+
+      <!-- Badge & Title -->
+      <span id="qr-modal-badge" class="inline-block px-3 py-1 rounded-full text-[11px] font-semibold bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 border border-teal-200/50 mb-2">
+        QR Code สาขา
+      </span>
+      <h3 id="qr-modal-title" class="text-lg font-bold text-slate-800 dark:text-white mb-1">
+        ชื่อระบบ / QR Code
+      </h3>
+      <p id="qr-modal-desc" class="text-xs text-slate-500 dark:text-slate-400 mb-5">
+        ยื่นหน้าจอนี้ให้ลูกค้าใช้กล้องสแกนได้ทันที
+      </p>
+
+      <!-- High-res QR Display Area in Inset Frame -->
+      <div class="relative neu-inset p-4 rounded-3xl flex items-center justify-center mx-auto aspect-square max-w-[260px] bg-white">
+        <img id="qr-modal-image" src="" alt="QR Code" class="w-full h-full object-contain rounded-xl">
+      </div>
+
+      <!-- Action Buttons inside QR modal -->
+      <div class="grid grid-cols-2 gap-2.5 mt-6">
+        <a id="qr-modal-link" href="#" target="_blank" class="neu-btn py-2.5 px-3 rounded-full text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5">
+          <i data-lucide="external-link" class="w-4 h-4"></i> เปิดเว็บ
+        </a>
+        <button id="btn-copy-qr-url" class="mint-pill-btn py-2.5 px-3 rounded-full text-white text-xs font-semibold flex items-center justify-center gap-1.5 touch-press">
+          <i data-lucide="copy" class="w-4 h-4"></i> คัดลอกลิงก์
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manage Links & Form Modal -->
+  <div id="manage-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md hidden opacity-0 transition-opacity duration-200 flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+    <div class="relative w-full max-w-xl neu-surface rounded-[32px] p-5 sm:p-7 transform scale-95 transition-transform duration-200 my-auto">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200/60 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl clay-icon text-teal-600 flex items-center justify-center">
+            <i data-lucide="folder-cog" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white" id="form-modal-heading">จัดการรายการลิงก์และ QR Code</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">เพิ่ม ลบ หรือส่งออกข้อมูลเพื่อแชร์ให้สาขาอื่น</p>
+          </div>
+        </div>
+        <button id="btn-close-manage-modal" class="neu-btn w-9 h-9 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center justify-center">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Add/Edit Form Form -->
+      <form id="link-form" class="mt-5 space-y-4">
+        <input type="hidden" id="form-item-id">
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">ชื่อระบบงาน / บริการ <span class="text-rose-500">*</span></label>
+          <input type="text" id="form-title" required placeholder="เช่น เช็กเบี้ยประกัน, Google Form รายงานยอด" 
+            class="w-full px-4 py-2.5 text-xs sm:text-sm rounded-xl neu-inset focus:outline-none text-slate-800 dark:text-white font-medium">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">หมวดหมู่ <span class="text-rose-500">*</span></label>
+            <select id="form-category" required class="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl neu-inset focus:outline-none text-slate-800 dark:text-white font-medium">
+              <option value="loan">📝 สินเชื่อ</option>
+              <option value="reports">📊 รายงานประจำวัน</option>
+              <option value="insurance">🛡️ ประกัน</option>
+              <option value="other">📁 อื่นๆ</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">ไอคอน (Lucide Icon Name)</label>
+            <input type="text" id="form-icon" placeholder="เช่น file-text, shield, qr-code, sheet" value="link"
+              class="w-full px-4 py-2.5 text-xs sm:text-sm rounded-xl neu-inset focus:outline-none text-slate-800 dark:text-white font-medium">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">URL ลิงก์ระบบ <span class="text-rose-500">*</span></label>
+          <input type="url" id="form-url" required placeholder="https://example.com"
+            class="w-full px-4 py-2.5 text-xs sm:text-sm rounded-xl neu-inset focus:outline-none text-slate-800 dark:text-white font-medium">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">คำอธิบายสั้นๆ</label>
+          <input type="text" id="form-desc" placeholder="เช่น ใช้อนุมัติเคสประจำวัน หรือส่งต่อลูกค้า"
+            class="w-full px-4 py-2.5 text-xs sm:text-sm rounded-xl neu-inset focus:outline-none text-slate-800 dark:text-white font-medium">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">URL รูป QR Code (ถ้ามี หรือจะให้ระบบสร้างให้อัตโนมัติ)</label>
+          <input type="text" id="form-qr-url" placeholder="เว้นว่างไว้เพื่อสร้างจาก URL อัตโนมัติ"
+            class="w-full px-4 py-2.5 text-xs sm:text-sm rounded-xl neu-inset focus:outline-none text-slate-800 dark:text-white font-medium">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">รอบกำหนดส่ง (ถ้ามี)</label>
+            <select id="form-schedule" class="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl neu-inset focus:outline-none text-slate-800 dark:text-white font-medium">
+              <option value="">-- ส่งได้ทุกวัน / ทั่วไป --</option>
+              <option value="daily">☀️ ส่งเป็นประจำทุกวัน</option>
+              <option value="mon">📅 ทุกวันจันทร์</option>
+              <option value="tue">📅 ทุกวันอังคาร</option>
+              <option value="wed">📅 ทุกวันพุธ</option>
+              <option value="thu">📅 ทุกวันพฤหัสบดี</option>
+              <option value="fri">📅 ทุกวันศุกร์</option>
+              <option value="sat">📅 ทุกวันเสาร์</option>
+              <option value="sun">📅 ทุกวันอาทิตย์</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">เวลาเส้นตาย รอบ 1 (24 ชม.)</label>
+            <select id="form-due-time" class="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl neu-inset focus:outline-none text-slate-800 dark:text-white font-medium">
+              <option value="">-- ไม่ระบุเวลา --</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">เวลาเส้นตาย รอบ 2 (ถ้ามี)</label>
+            <select id="form-due-time-2" class="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl neu-inset focus:outline-none text-slate-800 dark:text-white font-medium">
+              <option value="">-- ไม่ระบุเวลา --</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2.5 pt-1">
+          <input type="checkbox" id="form-pinned" class="w-4 h-4 rounded text-teal-600 focus:ring-teal-500 border-slate-300">
+          <label for="form-pinned" class="text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">ปักหมุดใน "เข้าบ่อยประจำวัน"</label>
+        </div>
+
+        <!-- Form Buttons -->
+        <div class="flex items-center gap-3 pt-3">
+          <button type="submit" class="flex-1 py-3 rounded-full mint-pill-btn text-white text-xs sm:text-sm font-bold shadow-md touch-press">
+            บันทึกรายการ
+          </button>
+          <button type="button" id="btn-cancel-form" class="neu-btn py-3 px-5 rounded-full text-slate-600 dark:text-slate-300 text-xs sm:text-sm font-semibold">
+            ล้างฟอร์ม
+          </button>
+        </div>
+      </form>
+
+      <!-- Data Backup & Reset Section -->
+      <div class="mt-6 pt-4 border-t border-slate-200/60 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2.5">
+        <div class="flex items-center gap-2">
+          <button id="btn-quick-open-sync" class="neu-btn px-3.5 py-1.5 rounded-full text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold flex items-center gap-1.5">
+            <i data-lucide="cloud" class="w-3.5 h-3.5 text-emerald-600"></i> เชื่อม Google Sheets
+          </button>
+          <button id="btn-export-json" class="neu-btn px-3.5 py-1.5 rounded-full text-slate-700 dark:text-slate-300 text-[11px] font-semibold flex items-center gap-1.5">
+            <i data-lucide="download" class="w-3.5 h-3.5 text-teal-600"></i> ส่งออก JSON
+          </button>
+          <label class="neu-btn px-3.5 py-1.5 rounded-full text-slate-700 dark:text-slate-300 text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="upload" class="w-3.5 h-3.5 text-teal-600"></i> นำเข้า JSON
+            <input type="file" id="input-import-json" accept=".json" class="hidden">
+          </label>
+        </div>
+        <button id="btn-reset-defaults" class="text-[11px] font-semibold text-rose-500 hover:underline flex items-center gap-1">
+          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> คืนค่าเริ่มต้น
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Google Sheets Cloud Sync Modal -->
+  <div id="sync-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md hidden opacity-0 transition-opacity duration-200 flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+    <div class="relative w-full max-w-lg neu-surface rounded-[32px] p-5 sm:p-7 transform scale-95 transition-transform duration-200 my-auto">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200/60 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl clay-icon-emerald text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+            <i data-lucide="cloud" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">เชื่อมต่อ Google Sheets กลาง</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">ซิงค์ลิงก์ให้ทุกสาขาและทุกอุปกรณ์เห็นข้อมูลตรงกัน</p>
+          </div>
+        </div>
+        <button id="btn-close-sync-modal" class="neu-btn w-9 h-9 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center justify-center">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Sync Status Box -->
+      <div class="mt-5 p-4 rounded-2xl neu-inset">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-slate-700 dark:text-slate-300">สถานะการเชื่อมต่อ:</span>
+          <span id="sync-modal-status-pill" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+            ยังไม่ได้เชื่อมต่อ
+          </span>
+        </div>
+        <p id="sync-modal-status-desc" class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+          นำ Web App URL ที่ได้จากการ Deploy ใน Google Sheets มาวางในช่องด้านล่าง แล้วกด "บันทึกและเชื่อมต่อ"
+        </p>
+      </div>
+
+      <!-- URL Input Form -->
+      <div class="mt-4 space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+            URL เว็บแอป (Google Apps Script Web App URL)
+          </label>
+          <input type="url" id="input-sheet-api-url" placeholder="https://script.google.com/macros/s/.../exec"
+            class="w-full px-4 py-2.5 text-xs rounded-xl neu-inset focus:outline-none text-slate-800 dark:text-white font-mono">
+        </div>
+
+        <div class="flex items-center gap-2 pt-2">
+          <button id="btn-save-sheet-url" class="flex-1 py-2.5 rounded-full mint-pill-btn text-white text-xs font-bold shadow-md touch-press">
+            บันทึกและเชื่อมต่อ
+          </button>
+          <button id="btn-fetch-now" class="neu-btn py-2.5 px-4 rounded-full text-xs font-semibold text-teal-700 dark:text-teal-300 flex items-center gap-1.5 touch-press">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> ดึงข้อมูลล่าสุด
+          </button>
+        </div>
+
+        <!-- Sync Actions -->
+        <div class="pt-3 border-t border-slate-200/60 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+          <button id="btn-push-all-to-sheet" class="neu-btn px-4 py-2 rounded-full text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5 touch-press" title="ส่งข้อมูลปัจจุบันทั้งหมดขึ้น Google Sheets">
+            <i data-lucide="upload-cloud" class="w-3.5 h-3.5"></i> ส่งข้อมูลทั้งหมดขึ้น Sheets
+          </button>
+          <button id="btn-disconnect-sheet" class="text-[11px] font-semibold text-rose-500 hover:underline">
+            ตัดการเชื่อมต่อ
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audit Log Pop-up Modal (ปุ่มกดดูประวัติว่าใครทำอะไรกับหน้าเว็บ) -->
+  <div id="log-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md hidden opacity-0 transition-opacity duration-200 flex items-center justify-center p-4">
+    <div class="relative w-full max-w-2xl neu-surface rounded-[32px] p-6 sm:p-7 transform scale-95 transition-transform duration-200" id="log-modal-card">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200/60 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl clay-icon text-teal-600 dark:text-teal-400 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-bold text-slate-800 dark:text-white">ประวัติการใช้งาน (Audit Log)</h3>
+              <span id="log-count-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-300 border border-teal-200/60">0 รายการ</span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">ตรวจสอบย้อนหลังว่าใครเป็นคนเพิ่ม ลบ หรือแก้ไขข้อมูลเวลาไหน</p>
+          </div>
+        </div>
+        <button id="btn-close-log-modal" class="neu-btn w-9 h-9 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center justify-center">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Action Bar -->
+      <div class="flex items-center justify-between pt-3 pb-2 text-xs">
+        <span class="text-slate-500 dark:text-slate-400 text-[11px]">บันทึกล่าสุด 50 รายการ</span>
+        <div class="flex items-center gap-2">
+          <button id="btn-export-log-csv" class="neu-btn px-3 py-1.5 rounded-full text-[11px] font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 touch-press">
+            <i data-lucide="download" class="w-3.5 h-3.5 text-teal-600"></i> ดาวน์โหลด CSV
+          </button>
+          <button id="btn-clear-change-log" class="text-[11px] font-semibold text-slate-400 hover:text-rose-500 transition-colors px-2 py-1">
+            ล้างประวัติ
+          </button>
+        </div>
+      </div>
+
+      <!-- Log Items List inside Modal -->
+      <div id="change-log-list" class="mt-2 space-y-2.5 max-h-96 overflow-y-auto pr-1">
+        <!-- Dynamic logs injected here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* Default Initial Branch Links & QR Code Dataset */
+    const DEFAULT_ITEMS = [
+      {
+        id: "powerapp-attendance",
+        title: "ระบบลงเวลาปฏิบัติงาน (Power Apps)",
+        category: "reports",
+        icon: "user-check",
+        url: "https://apps.powerapps.com/play/e/default-2f57d4db-9955-48f4-998c-0f3fc5338f8f/a/5ed99655-3938-4c19-9432-2fd3809d8ab9?tenantId=2f57d4db-9955-48f4-998c-0f3fc5338f8f&hint=f9562114-fecd-4c3e-bd9b-6b32051fb63d&sourcetime=1780036625047&source=portal&skipMobileRedirect=1",
+        desc: "บันทึกเวลาเข้า-ออกงานสาขา (รอบเช้าไม่เกิน 09:00 น. และรอบเย็นไม่เกิน 17:30 น.)",
+        qrUrl: "",
+        scheduleDay: "daily",
+        dueTime: "09:00",
+        dueTime2: "17:30",
+        pinned: true,
+        bgColor: "clay-icon text-indigo-600"
+      },
+      {
+        id: "report-1",
+        title: "(เย็น) สาขาแจ้งยอดเงินสดคงเหลือของสาขาประจำวัน",
+        category: "reports",
+        icon: "banknote",
+        url: "https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=29RXL1WZ9EiZjA8_xTOPj53dn_-hn8FMhEW1kTnsVZZUMzlYMkhRUTlXSFBXNDhTU0FLQk5FNlZJNCQlQCN0PWcu&origin=QRCode",
+        desc: "แจ้งยอดเงินสดคงเหลือปิดรอบเย็นประจำวัน",
+        qrUrl: "",
+        scheduleDay: "daily",
+        dueTime: "17:00",
+        pinned: true,
+        bgColor: "clay-icon text-amber-600"
+      },
+      {
+        id: "report-2",
+        title: "สำหรับสาขา - รายงานจำนวนบัตรคงเหลือประจำวัน 2569",
+        category: "reports",
+        icon: "credit-card",
+        url: "https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=29RXL1WZ9EiZjA8_xTOPj53dn_-hn8FMhEW1kTnsVZZUQTJDSjlSWlFSMVhCVUhBTVBXMEpaU0taViQlQCN0PWcu&origin=QRCode",
+        desc: "ตรวจนับและรายงานจำนวนบัตรคงเหลือประจำวัน",
+        qrUrl: "",
+        scheduleDay: "fri",
+        dueTime: "16:30",
+        pinned: true,
+        bgColor: "clay-icon text-amber-600"
+      },
+      {
+        id: "report-3",
+        title: "รายงานสินเชื่อประจำวัน เขตราชบุรี",
+        category: "reports",
+        icon: "clipboard-list",
+        url: "https://forms.cloud.microsoft/pages/responsepage.aspx?id=29RXL1WZ9EiZjA8_xTOPj8CZsgYsQ41KozOnSW10NHhUMzhTOERYQlVKRkFBWDA1M0s5UUJCQVdZRy4u&origin=QRCode&route=shorturl",
+        desc: "ส่งยอดและรายงานสินเชื่อประจำวัน เขตราชบุรี",
+        qrUrl: "",
+        scheduleDay: "daily",
+        dueTime: "16:30",
+        pinned: true,
+        bgColor: "clay-icon text-amber-600"
+      },
+      {
+        id: "report-4",
+        title: "กรณีสาขาไม่มียอดจัดและประกันภายในวัน",
+        category: "reports",
+        icon: "alert-circle",
+        url: "https://forms.cloud.microsoft/pages/responsepage.aspx?id=29RXL1WZ9EiZjA8_xTOPj8CZsgYsQ41KozOnSW10NHhUQjczMTFBWE40VlM3RkxRR1JZRFcxQjAzSi4u&origin=QRCode&route=shorturl",
+        desc: "รายงานชี้แจงกรณีสาขาไม่มียอดจัดและประกันภายในวัน",
+        qrUrl: "",
+        scheduleDay: "daily",
+        dueTime: "17:30",
+        pinned: false,
+        bgColor: "clay-icon text-amber-600"
+      }
+    ];
+
+    /* Category Names Mapping */
+    const CATEGORY_NAMES = {
+      loan: "สินเชื่อ",
+      reports: "รายงานประจำวัน",
+      insurance: "ประกัน",
+      other: "อื่นๆ",
+      // Legacy compatibility mapping
+      core: "สินเชื่อ",
+      forms: "รายงานประจำวัน",
+      qrcode: "อื่นๆ",
+      docs: "อื่นๆ"
+    };
+
+    /* Category Theme Styling Mapping (Vibrant Neumorphic Colors) */
+    const CATEGORY_THEMES = {
+      loan: {
+        name: "สินเชื่อ",
+        iconBg: "clay-icon-blue text-blue-600 dark:text-blue-400",
+        badge: "bg-blue-50/90 text-blue-700 dark:bg-blue-950/80 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800/80",
+        btn: "btn-cat-blue",
+        qrBtn: "text-blue-600 dark:text-blue-400",
+        textClass: "text-blue-600 dark:text-blue-400",
+        borderHover: "hover:border-blue-400/60 dark:hover:border-blue-500/50"
+      },
+      reports: {
+        name: "รายงานประจำวัน",
+        iconBg: "clay-icon-amber text-amber-600 dark:text-amber-400",
+        badge: "bg-amber-50/90 text-amber-700 dark:bg-amber-950/80 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/80",
+        btn: "btn-cat-amber",
+        qrBtn: "text-amber-600 dark:text-amber-400",
+        textClass: "text-amber-600 dark:text-amber-400",
+        borderHover: "hover:border-amber-400/60 dark:hover:border-amber-500/50"
+      },
+      insurance: {
+        name: "ประกัน",
+        iconBg: "clay-icon-purple text-purple-600 dark:text-purple-400",
+        badge: "bg-purple-50/90 text-purple-700 dark:bg-purple-950/80 dark:text-purple-300 border border-purple-200/80 dark:border-purple-800/80",
+        btn: "btn-cat-purple",
+        qrBtn: "text-purple-600 dark:text-purple-400",
+        textClass: "text-purple-600 dark:text-purple-400",
+        borderHover: "hover:border-purple-400/60 dark:hover:border-purple-500/50"
+      },
+      other: {
+        name: "อื่นๆ",
+        iconBg: "clay-icon-emerald text-emerald-600 dark:text-emerald-400",
+        badge: "bg-emerald-50/90 text-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/80",
+        btn: "btn-cat-emerald",
+        qrBtn: "text-emerald-600 dark:text-emerald-400",
+        textClass: "text-emerald-600 dark:text-emerald-400",
+        borderHover: "hover:border-emerald-400/60 dark:hover:border-emerald-500/50"
+      }
+    };
+
+    function getCategoryTheme(catKey) {
+      if (CATEGORY_THEMES[catKey]) return CATEGORY_THEMES[catKey];
+      if (catKey === "core") return CATEGORY_THEMES.loan;
+      if (catKey === "forms") return CATEGORY_THEMES.reports;
+      return CATEGORY_THEMES.other;
+    }
+
+    /* Weekday Names Mapping */
+    const WEEKDAY_NAMES = {
+      daily: "ส่งประจำทุกวัน",
+      mon: "ทุกวันจันทร์",
+      tue: "ทุกวันอังคาร",
+      wed: "ทุกวันพุธ",
+      thu: "ทุกวันพฤหัสบดี",
+      fri: "ทุกวันศุกร์",
+      sat: "ทุกวันเสาร์",
+      sun: "ทุกวันอาทิตย์"
+    };
+    const DAYS_OF_WEEK = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+
+    const STORAGE_KEY = "branch_hub_items_v2";
+    const SHEET_API_KEY = "branch_hub_sheet_api_url";
+    const DEFAULT_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbx7sWcY2HBBmdV1_yGwEbqKhebXst5mte4o_0SduSILH2H8K34NsjXtMbw6OmXbVRkieA/exec";
+    let isCloudSyncing = false;
+    let items = [];
+    let currentCategory = "all";
+    let searchQuery = "";
+
+    // Load from LocalStorage
+    function loadItems() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        try {
+          items = JSON.parse(stored);
+          let updated = false;
+
+          // Purge all removed sample placeholder items
+          const mockSampleIds = ["item-1", "item-2", "item-3", "item-4", "item-7", "item-8"];
+          const oldLen = items.length;
+          items = items.filter(x => !mockSampleIds.includes(x.id));
+          if (items.length !== oldLen) updated = true;
+
+          // Ensure attendance Power App exists
+          let att = items.find(x => x.id === "powerapp-attendance");
+          if (!att) {
+            items.unshift({
+              id: "powerapp-attendance",
+              title: "ระบบลงเวลาปฏิบัติงาน (Power Apps)",
+              category: "reports",
+              icon: "user-check",
+              url: "https://apps.powerapps.com/play/e/default-2f57d4db-9955-48f4-998c-0f3fc5338f8f/a/5ed99655-3938-4c19-9432-2fd3809d8ab9?tenantId=2f57d4db-9955-48f4-998c-0f3fc5338f8f&hint=f9562114-fecd-4c3e-bd9b-6b32051fb63d&sourcetime=1780036625047&source=portal&skipMobileRedirect=1",
+              desc: "บันทึกเวลาเข้า-ออกงานสาขา (รอบเช้าไม่เกิน 09:00 น. และรอบเย็นไม่เกิน 17:30 น.)",
+              qrUrl: "",
+              scheduleDay: "daily",
+              dueTime: "09:00",
+              dueTime2: "17:30",
+              pinned: true,
+              bgColor: "clay-icon text-indigo-600"
+            });
+            updated = true;
+          } else {
+            if (!att.dueTime2 || !att.dueTime) {
+              att.dueTime = "09:00";
+              att.dueTime2 = "17:30";
+              att.scheduleDay = "daily";
+              updated = true;
+            }
+          }
+
+          // Synchronize default schedule & due time for reports if missing
+          const r1 = items.find(x => x.id === "report-1");
+          if (r1 && (!r1.scheduleDay || !r1.dueTime)) {
+            r1.scheduleDay = "daily";
+            r1.dueTime = "17:00";
+            updated = true;
+          }
+          const r2 = items.find(x => x.id === "report-2");
+          if (r2 && (!r2.scheduleDay || !r2.dueTime)) {
+            r2.scheduleDay = "fri";
+            r2.dueTime = "16:30";
+            updated = true;
+          }
+          const r3 = items.find(x => x.id === "report-3");
+          if (r3 && (!r3.scheduleDay || !r3.dueTime)) {
+            r3.scheduleDay = "daily";
+            r3.dueTime = "16:30";
+            updated = true;
+          }
+          const r4 = items.find(x => x.id === "report-4");
+          if (r4 && (!r4.scheduleDay || !r4.dueTime)) {
+            r4.scheduleDay = "daily";
+            r4.dueTime = "17:30";
+            updated = true;
+          }
+          items = items.map(it => ({
+            ...it,
+            dueTime: sanitizeTimeStr(it.dueTime),
+            dueTime2: sanitizeTimeStr(it.dueTime2)
+          }));
+          if (updated) saveItems();
+        } catch (e) {
+          items = [...DEFAULT_ITEMS];
+        }
+      } else {
+        items = [...DEFAULT_ITEMS];
+        saveItems();
+      }
+    }
+
+    // Save to LocalStorage and optionally sync to Google Sheets
+    function saveItems(syncToCloud = true) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      if (syncToCloud && getGoogleSheetUrl()) {
+        pushItemsToGoogleSheet(true); // background silent sync
+      }
+    }
+
+    function getGoogleSheetUrl() {
+      const custom = localStorage.getItem(SHEET_API_KEY);
+      if (custom && custom.trim() !== "") {
+        return custom.trim();
+      }
+      return DEFAULT_SHEET_API_URL;
+    }
+
+    function setGoogleSheetUrl(url) {
+      localStorage.setItem(SHEET_API_KEY, (url || "").trim());
+      updateSyncUI();
+    }
+
+    function updateSyncUI() {
+      const url = getGoogleSheetUrl();
+      const dot = document.getElementById("sync-status-dot");
+      const label = document.getElementById("sync-status-label");
+      const modalPill = document.getElementById("sync-modal-status-pill");
+      const modalDesc = document.getElementById("sync-modal-status-desc");
+      const input = document.getElementById("input-sheet-api-url");
+
+      if (input && document.activeElement !== input) {
+        input.value = url;
+      }
+
+      if (url) {
+        if (dot) dot.className = isCloudSyncing 
+          ? "w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping" 
+          : "w-2.5 h-2.5 rounded-full bg-emerald-500";
+        if (label) label.textContent = isCloudSyncing ? "กำลังซิงค์..." : "ซิงค์คลาวด์แล้ว";
+        if (modalPill) {
+          modalPill.className = "px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300";
+          modalPill.textContent = "เชื่อมต่อแล้ว (Online)";
+        }
+        if (modalDesc) {
+          modalDesc.textContent = "ระบบเชื่อมต่อกับ Google Sheets เรียบร้อยแล้ว ทุกการแก้ไขจะถูกส่งขึ้นคลาวด์อัตโนมัติ";
+        }
+      } else {
+        if (dot) dot.className = "w-2.5 h-2.5 rounded-full bg-slate-400";
+        if (label) label.textContent = "Google Sheets";
+        if (modalPill) {
+          modalPill.className = "px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400";
+          modalPill.textContent = "ยังไม่ได้เชื่อมต่อ";
+        }
+        if (modalDesc) {
+          modalDesc.textContent = "นำ Web App URL ที่ได้จาก Google Sheets มาวางในช่องด้านล่าง แล้วกด \"บันทึกและเชื่อมต่อ\"";
+        }
+      }
+    }
+
+    // ดึงข้อมูลลิงก์ล่าสุดจาก Google Sheets
+    async function fetchFromGoogleSheet(silent = false) {
+      const url = getGoogleSheetUrl();
+      if (!url) {
+        if (!silent) showToast("กรุณาระบุ URL ของ Google Sheets ก่อน");
+        return;
+      }
+
+      isCloudSyncing = true;
+      updateSyncUI();
+      if (!silent) showToast("กำลังดึงข้อมูลล่าสุดจาก Google Sheets...");
+
+      try {
+        const response = await fetch(url, { method: "GET" });
+        const result = await response.json();
+
+        if (result && result.status === "success" && Array.isArray(result.data) && result.data.length > 0) {
+          items = result.data.map(it => ({
+            ...it,
+            dueTime: sanitizeTimeStr(it.dueTime),
+            dueTime2: sanitizeTimeStr(it.dueTime2)
+          }));
+          saveItems(false); // บันทึกลง local โดยไม่ต้อง sync ซ้ำ
+          renderApp();
+
+          // Sync cloud logs if available from Google Sheets AuditLogs tab
+          if (Array.isArray(result.logs) && result.logs.length > 0) {
+            mergeCloudLogs(result.logs);
+          }
+
+          if (!silent) showToast(`ดึงข้อมูลสำเร็จ (${items.length} รายการ)`);
+        } else if (result && result.data && result.data.length === 0) {
+          if (!silent) showToast("ใน Google Sheets ยังไม่มีข้อมูล กำลังส่งข้อมูลปัจจุบันขึ้นไป...");
+          await pushItemsToGoogleSheet(silent);
+        } else {
+          if (!silent) showToast("ไม่พบรายการข้อมูลใน Google Sheets");
+        }
+      } catch (err) {
+        console.warn("Google Sheets fetch error:", err);
+        if (!silent) showToast("ไม่สามารถเชื่อมต่อ Google Sheets ได้ ตรวจสอบ URL อีกครั้ง");
+      } finally {
+        isCloudSyncing = false;
+        updateSyncUI();
+      }
+    }
+
+    // ส่งข้อมูลทั้งหมดขึ้น Google Sheets (Sync ทั้งหมด)
+    async function pushItemsToGoogleSheet(silent = false) {
+      const url = getGoogleSheetUrl();
+      if (!url) return;
+
+      isCloudSyncing = true;
+      updateSyncUI();
+      if (!silent) showToast("กำลังส่งข้อมูลขึ้น Google Sheets...");
+
+      try {
+        const payload = {
+          action: "syncAll",
+          items: items,
+          user: getCurrentUser()
+        };
+
+        await fetch(url, {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!silent) showToast("ซิงค์ข้อมูลขึ้น Google Sheets สำเร็จ!");
+      } catch (err) {
+        console.warn("Google Sheets push error:", err);
+        if (!silent) showToast("ส่งข้อมูลขึ้น Google Sheets ไม่สำเร็จ");
+      } finally {
+        isCloudSyncing = false;
+        updateSyncUI();
+      }
+    }
+
+    // Toast Notification Dispatcher
+    function showToast(text) {
+      const toast = document.getElementById("toast");
+      const message = document.getElementById("toast-message");
+      message.textContent = text;
+      toast.classList.remove("-translate-y-20", "opacity-0");
+      toast.classList.add("translate-y-0", "opacity-100");
+      setTimeout(() => {
+        toast.classList.remove("translate-y-0", "opacity-100");
+        toast.classList.add("-translate-y-20", "opacity-0");
+      }, 2400);
+    }
+
+    // Clipboard copy with fallback
+    function copyToClipboard(text, successMsg = "คัดลอกลิงก์สำเร็จแล้ว!") {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(successMsg);
+        }).catch(() => {
+          fallbackCopyText(text, successMsg);
+        });
+      } else {
+        fallbackCopyText(text, successMsg);
+      }
+    }
+
+    function fallbackCopyText(text, successMsg) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.opacity = "0";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        showToast(successMsg);
+      } catch (err) {
+        showToast("ไม่สามารถคัดลอกได้ กรุณาคัดลอกด้วยตนเอง");
+      }
+      document.body.removeChild(textArea);
+    }
+
+    function renderTopUrgentBanner() {
+      const banner = document.getElementById("top-urgent-banner");
+      if (!banner) return;
+
+      const urgentItems = items.filter(it => {
+        const sched = getScheduleStatus(it);
+        return sched && sched.isUrgent;
+      });
+
+      if (urgentItems.length === 0) {
+        banner.classList.add("hidden");
+        return;
+      }
+
+      banner.classList.remove("hidden");
+      const first = urgentItems[0];
+      const sched = getScheduleStatus(first);
+
+      const titleEl = document.getElementById("urgent-banner-title");
+      const timeEl = document.getElementById("urgent-banner-time");
+      const btnEl = document.getElementById("urgent-banner-btn");
+
+      if (titleEl) {
+        if (urgentItems.length > 1) {
+          titleEl.textContent = `${first.title} (และมีอีก ${urgentItems.length - 1} งานถึงกำหนดส่ง)`;
+        } else {
+          titleEl.textContent = first.title;
+        }
+      }
+
+      if (timeEl) {
+        timeEl.textContent = sched.shortLabel || `ถึงเวลาส่งแล้ว`;
+      }
+
+      if (btnEl) {
+        btnEl.href = first.url;
+      }
+    }
+
+    function renderApp() {
+      renderTopUrgentBanner();
+      renderPinnedItems();
+      renderMainGrid();
+      renderChangeLogs();
+      lucide.createIcons();
+    }
+
+    // Helper to sanitize Google Sheets epoch time format (e.g. 1899-12-30T10:47:56.000Z -> 17:30)
+    function sanitizeTimeStr(val) {
+      if (!val) return "";
+      let s = String(val).trim();
+      if (!s) return "";
+
+      // If it contains ISO timestamp from 1899 epoch
+      if (s.includes("T")) {
+        const timeMatch = s.match(/T(\d{2}):(\d{2})/);
+        if (timeMatch) {
+          let h = parseInt(timeMatch[1], 10);
+          let m = parseInt(timeMatch[2], 10);
+          let totalM = Math.round(h * 60 + m + (6 * 60 + 42.0667));
+          let finalH = Math.floor(totalM / 60) % 24;
+          let finalM = totalM % 60;
+          const remainder = finalM % 5;
+          if (remainder === 1 || remainder === 2) finalM -= remainder;
+          else if (remainder === 3 || remainder === 4) finalM += (5 - remainder);
+          if (finalM >= 60) {
+            finalH = (finalH + Math.floor(finalM / 60)) % 24;
+            finalM = finalM % 60;
+          }
+          return `${String(finalH).padStart(2, "0")}:${String(finalM).padStart(2, "0")}`;
+        }
+      }
+
+      // Standard HH:mm format
+      const m = s.match(/(\d{1,2}):(\d{1,2})/);
+      if (m) {
+        return `${String(m[1]).padStart(2, "0")}:${String(m[2]).padStart(2, "0")}`;
+      }
+
+      return s;
+    }
+
+    // Helper to calculate daily & weekly schedule status and urgency alert
+    function getScheduleStatus(item) {
+      if (!item.scheduleDay) return null;
+      if (item.dueTime) item.dueTime = sanitizeTimeStr(item.dueTime);
+      if (item.dueTime2) item.dueTime2 = sanitizeTimeStr(item.dueTime2);
+
+      const now = new Date();
+      const currentDayCode = DAYS_OF_WEEK[now.getDay()]; // 'sun', 'mon', ...
+      const isToday = item.scheduleDay === "daily" || item.scheduleDay === currentDayCode;
+      const dayLabel = WEEKDAY_NAMES[item.scheduleDay] || "ทุกวัน";
+
+      // If scheduled for another day
+      if (!isToday) {
+        let timePart = "";
+        if (item.dueTime && item.dueTime2) {
+          timePart = ` (รอบ 1: ${item.dueTime} น. / รอบ 2: ${item.dueTime2} น.)`;
+        } else if (item.dueTime) {
+          timePart = ` (ก่อน ${item.dueTime} น.)`;
+        }
+        return {
+          isToday: false,
+          isUrgent: false,
+          isOverdue: false,
+          text: `กำหนดส่ง: ${dayLabel}${timePart}`,
+          badgeClass: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700",
+          icon: "calendar",
+          shortLabel: dayLabel
+        };
+      }
+
+      // It IS scheduled for today!
+      // Check Dual Round Mode (e.g. Round 1: 09:00, Round 2: 17:30)
+      if (item.dueTime && item.dueTime2) {
+        const [h1, m1] = item.dueTime.split(":").map(Number);
+        const [h2, m2] = item.dueTime2.split(":").map(Number);
+        const curMin = now.getHours() * 60 + now.getMinutes();
+        const t1Min = h1 * 60 + m1;
+        const t2Min = h2 * 60 + m2;
+
+        // Morning window: before midday (12:00)
+        if (curMin < 12 * 60) {
+          if (curMin >= t1Min) {
+            // เลยเวลาแล้ว: แสดงแบบปกติ ไม่กระพริบ
+            return {
+              isToday: true,
+              isUrgent: false,
+              isOverdue: true,
+              pulseCard: false,
+              text: `เลยรอบเช้าแล้ว (${item.dueTime} น.)`,
+              badgeClass: "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border border-slate-200/80 dark:border-slate-700",
+              icon: "clock",
+              shortLabel: `เลยรอบเช้า (${item.dueTime} น.)`
+            };
+          } else if (curMin >= t1Min - 120) {
+            // ถึงเวลาส่งแล้ว: กระพริบทั้งการ์ด!
+            return {
+              isToday: true,
+              isUrgent: true,
+              isOverdue: false,
+              pulseCard: true,
+              text: `⚡ ถึงเวลาลงเวลาเช้า! (ก่อน ${item.dueTime} น.)`,
+              badgeClass: "bg-amber-50 text-amber-700 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-400 dark:border-amber-600 shadow-sm badge-urgent-pulse ring-2 ring-amber-400/60",
+              icon: "bell-ring",
+              shortLabel: `ด่วนรอบเช้า (${item.dueTime} น.)`
+            };
+          } else {
+            // ก่อนถึงช่วงส่ง: แสดงปกติ
+            return {
+              isToday: true,
+              isUrgent: false,
+              isOverdue: false,
+              pulseCard: false,
+              text: `⏰ รอบเช้า: ก่อน ${item.dueTime} น. (รอบเย็น ${item.dueTime2} น.)`,
+              badgeClass: "bg-teal-50 text-teal-700 dark:bg-teal-950/70 dark:text-teal-300 border border-teal-300 dark:border-teal-700 shadow-sm",
+              icon: "clock",
+              shortLabel: `เช้า ${item.dueTime} น.`
+            };
+          }
+        } else {
+          // Afternoon window: from 12:00 onwards
+          if (curMin >= t2Min) {
+            // เลยเวลาแล้ว: แสดงแบบปกติ ไม่กระพริบ
+            return {
+              isToday: true,
+              isUrgent: false,
+              isOverdue: true,
+              pulseCard: false,
+              text: `เลยรอบเย็นแล้ว (${item.dueTime2} น.)`,
+              badgeClass: "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border border-slate-200/80 dark:border-slate-700",
+              icon: "clock",
+              shortLabel: `เลยรอบเย็น (${item.dueTime2} น.)`
+            };
+          } else if (curMin >= t2Min - 120) {
+            // ถึงเวลาส่งแล้ว: กระพริบทั้งการ์ด!
+            return {
+              isToday: true,
+              isUrgent: true,
+              isOverdue: false,
+              pulseCard: true,
+              text: `⚡ ถึงเวลาลงเวลาเย็น! (ก่อน ${item.dueTime2} น.)`,
+              badgeClass: "bg-amber-50 text-amber-700 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-400 dark:border-amber-600 shadow-sm badge-urgent-pulse ring-2 ring-amber-400/60",
+              icon: "bell-ring",
+              shortLabel: `ด่วนรอบเย็น (${item.dueTime2} น.)`
+            };
+          } else {
+            // ก่อนถึงช่วงส่ง: แสดงปกติ
+            return {
+              isToday: true,
+              isUrgent: false,
+              isOverdue: false,
+              pulseCard: false,
+              text: `⏰ รอบเย็น: ก่อน ${item.dueTime2} น.`,
+              badgeClass: "bg-teal-50 text-teal-700 dark:bg-teal-950/70 dark:text-teal-300 border border-teal-300 dark:border-teal-700 shadow-sm",
+              icon: "clock",
+              shortLabel: `เย็น ${item.dueTime2} น.`
+            };
+          }
+        }
+      }
+
+      // Single dueTime handling
+      if (item.dueTime) {
+        const [dueHour, dueMinute] = item.dueTime.split(":").map(Number);
+        const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+        const currentTotalMin = currentHour * 60 + currentMinute;
+        const dueTotalMin = dueHour * 60 + dueMinute;
+        
+        // 1) Past cutoff time: เลยเวลาแล้วให้แสดงปกติ ไม่กระพริบ
+        if (currentTotalMin >= dueTotalMin) {
+          return {
+            isToday: true,
+            isUrgent: false,
+            isOverdue: true,
+            pulseCard: false,
+            text: `เลยกำหนดเวลาส่งแล้ว (${item.dueTime} น.)`,
+            badgeClass: "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border border-slate-200/80 dark:border-slate-700",
+            icon: "clock",
+            shortLabel: `เลยกำหนด (${item.dueTime} น.)`
+          };
+        }
+
+        // 2) Urgent alert window: ถึงเวลาส่งแล้ว -> กระพริบทั้งการ์ด!
+        const alertStartMin = dueTotalMin - 120;
+        if (currentTotalMin >= alertStartMin) {
+          return {
+            isToday: true,
+            isUrgent: true,
+            isOverdue: false,
+            pulseCard: true,
+            text: `⚡ ถึงเวลาส่งแล้ว! (ก่อน ${item.dueTime} น.)`,
+            badgeClass: "bg-amber-50 text-amber-700 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-400 dark:border-amber-600 shadow-sm badge-urgent-pulse ring-2 ring-amber-400/60",
+            icon: "bell-ring",
+            shortLabel: `ด่วน! ก่อน ${item.dueTime} น.`
+          };
+        }
+
+        // 3) Earlier in the day before urgent window: แสดงปกติ
+        return {
+          isToday: true,
+          isUrgent: false,
+          isOverdue: false,
+          pulseCard: false,
+          text: `⏰ กำหนดส่งวันนี้ (ก่อน ${item.dueTime} น.)`,
+          badgeClass: "bg-teal-50 text-teal-700 dark:bg-teal-950/70 dark:text-teal-300 border border-teal-300 dark:border-teal-700 shadow-sm",
+          icon: "clock",
+          shortLabel: `วันนี้ ${item.dueTime} น.`
+        };
+      }
+
+      // Today without specific due time: general pulse alert
+      return {
+        isToday: true,
+        isUrgent: true,
+        isOverdue: false,
+        pulseCard: true,
+        text: `🔔 ถึงเวลาส่งวันนี้! (${dayLabel})`,
+        badgeClass: "bg-amber-50 text-amber-700 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-300 dark:border-amber-700 shadow-sm badge-urgent-pulse ring-2 ring-amber-300/50",
+        icon: "bell-ring",
+        shortLabel: "ส่งวันนี้"
+      };
+    }
+
+    // Render Quick Action Pinned Buttons
+    function renderPinnedItems() {
+      const pinnedContainer = document.getElementById("pinned-grid");
+      const pinnedItems = items.filter(it => it.pinned);
+      
+      pinnedContainer.innerHTML = "";
+      pinnedItems.forEach((item, index) => {
+        const sched = getScheduleStatus(item);
+        const pulseClass = (sched && sched.pulseCard) ? "card-urgent-pulse" : "";
+
+        const btn = document.createElement("div");
+        btn.className = `neu-btn p-3 rounded-2xl flex items-center gap-3 cursor-pointer group transition-all duration-200 hover:-translate-y-1 ${pulseClass}`;
+        btn.style.animation = `cardEntrance 0.35s cubic-bezier(0.16, 1, 0.3, 1) both ${index * 40}ms`;
+
+        let pingDotHtml = "";
+        let badgePillHtml = "";
+
+        if (sched) {
+          if (sched.isToday) {
+            if (sched.isUrgent) {
+              pingDotHtml = `<span class="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-amber-500 ring-2 ring-white animate-ping"></span><span class="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-amber-500 ring-2 ring-white"></span>`;
+              badgePillHtml = `<span class="text-[9px] px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700 font-bold border border-amber-300 animate-pulse">${sched.shortLabel}</span>`;
+            } else if (sched.isOverdue) {
+              // เลยเวลาแล้ว แสดงแบบปกติ ไม่กระพริบ
+              badgePillHtml = `<span class="text-[9px] px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500 border border-slate-200/80">${sched.shortLabel}</span>`;
+            } else {
+              // ก่อนถึงช่วงส่ง แสดงปกติ
+              badgePillHtml = `<span class="text-[9px] px-1.5 py-0.5 rounded-md bg-teal-50 text-teal-700 font-semibold border border-teal-200">${sched.shortLabel}</span>`;
+            }
+          } else {
+            badgePillHtml = `<span class="text-[9px] px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500 border border-slate-200/80">${sched.shortLabel}</span>`;
+          }
+        }
+
+        btn.innerHTML = `
+          <div class="w-10 h-10 rounded-2xl flex-shrink-0 flex items-center justify-center clay-icon text-teal-600 dark:text-teal-400 transition-transform group-hover:scale-105 relative">
+            <i data-lucide="${item.icon || 'link'}" class="w-5 h-5"></i>
+            ${pingDotHtml}
+          </div>
+          <div class="min-w-0 flex-1">
+            <h4 class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors leading-snug break-words">${item.title}</h4>
+            <div class="flex items-center gap-1.5 mt-0.5">
+              <span class="text-[10px] text-teal-600 dark:text-teal-400 font-semibold truncate">${CATEGORY_NAMES[item.category] || 'ระบบงาน'}</span>
+              ${badgePillHtml}
+            </div>
+          </div>
+        `;
+
+        btn.addEventListener("click", () => {
+          window.open(item.url, "_blank");
+        });
+
+        pinnedContainer.appendChild(btn);
+      });
+    }
+
+    // Render Main Items Grid with Filtering
+    function renderMainGrid() {
+      const grid = document.getElementById("links-grid");
+      const emptyState = document.getElementById("empty-state");
+      const countBadge = document.getElementById("items-count-badge");
+
+      // Filter logic
+      const filtered = items.filter(item => {
+        const matchesCat = (currentCategory === "all") || (item.category === currentCategory);
+        const q = searchQuery.toLowerCase().trim();
+        const matchesQuery = !q || 
+          item.title.toLowerCase().includes(q) || 
+          (item.desc && item.desc.toLowerCase().includes(q)) ||
+          item.url.toLowerCase().includes(q);
+        return matchesCat && matchesQuery;
+      });
+
+      countBadge.textContent = `${filtered.length} รายการ`;
+      grid.innerHTML = "";
+
+      if (filtered.length === 0) {
+        emptyState.classList.remove("hidden");
+      } else {
+        emptyState.classList.add("hidden");
+      }
+
+      filtered.forEach((item, index) => {
+        const sched = getScheduleStatus(item);
+        const cardPulseClass = (sched && sched.pulseCard) ? "card-urgent-pulse" : "";
+
+        const card = document.createElement("div");
+        card.className = `group relative neu-surface tilt-card shimmer-card rounded-[28px] p-5 sm:p-5.5 transition-all flex flex-col justify-between ${cardPulseClass}`;
+        card.style.animation = `cardEntrance 0.4s cubic-bezier(0.16, 1, 0.3, 1) both ${index * 45}ms`;
+
+        let scheduleBadgeHtml = "";
+        if (sched) {
+          const pingDot = sched.isUrgent ? `<span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>` : "";
+          scheduleBadgeHtml = `
+            <div class="mb-2.5">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold ${sched.badgeClass}">
+                ${pingDot}
+                <i data-lucide="${sched.icon}" class="w-3.5 h-3.5"></i>
+                <span>${sched.text}</span>
+              </span>
+            </div>
+          `;
+        }
+
+        card.innerHTML = `
+          <div>
+            <!-- Top Card Header: 3D Squircle Icon & Category Badge -->
+            <div class="flex items-start justify-between gap-3 mb-3.5">
+              <div class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 clay-icon text-teal-600 dark:text-teal-400">
+                <i data-lucide="${item.icon || 'link'}" class="w-6 h-6"></i>
+              </div>
+              <div class="flex items-center gap-1">
+                <span class="px-3 py-1 rounded-full text-[11px] font-semibold bg-teal-50/80 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 border border-teal-200/50">
+                  ${CATEGORY_NAMES[item.category] || 'ทั่วไป'}
+                </span>
+                <button class="btn-item-edit p-1.5 text-slate-400 hover:text-teal-600 rounded-lg transition-colors" data-id="${item.id}" title="แก้ไขชื่อหรือข้อมูลรายการนี้">
+                  <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                </button>
+                <button class="btn-item-delete p-1.5 text-slate-300 hover:text-rose-500 rounded-lg transition-colors" data-id="${item.id}" title="ลบรายการนี้">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Title, Due Badge & Description -->
+            ${scheduleBadgeHtml}
+            <h3 class="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100 leading-snug mb-1.5 break-words">
+              ${item.title}
+            </h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4 break-words">
+              ${item.desc || 'ไม่มีคำอธิบายเพิ่มเติม'}
+            </p>
+          </div>
+
+          <!-- Bottom Action Buttons: Open, QR Modal, and Copy -->
+          <div class="pt-3.5 border-t border-slate-200/60 dark:border-slate-800/80 flex items-center gap-2">
+            <a href="${item.url}" target="_blank" class="flex-1 py-2.5 px-4 rounded-full mint-pill-btn text-white text-xs font-semibold flex items-center justify-center gap-2 transition-transform touch-press">
+              <span>เปิดระบบ</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </a>
+            <button class="btn-view-qr neu-btn w-9 h-9 rounded-full text-teal-600 dark:text-teal-400 flex items-center justify-center transition-all touch-press flex-shrink-0" data-id="${item.id}" title="แสดง QR Code สำหรับสแกน">
+              <i data-lucide="qr-code" class="w-4 h-4"></i>
+            </button>
+            <button class="btn-copy-url neu-btn w-9 h-9 rounded-full text-slate-500 hover:text-slate-700 dark:text-slate-400 flex items-center justify-center transition-all touch-press flex-shrink-0" data-url="${item.url}" title="คัดลอกลิงก์">
+              <i data-lucide="copy" class="w-4 h-4"></i>
+            </button>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+
+      // Bind Event Listeners on newly rendered buttons
+      grid.querySelectorAll(".btn-copy-url").forEach(b => {
+        b.addEventListener("click", (e) => {
+          e.stopPropagation();
+          copyToClipboard(b.dataset.url);
+        });
+      });
+
+      grid.querySelectorAll(".btn-view-qr").forEach(b => {
+        b.addEventListener("click", () => {
+          const it = items.find(x => x.id === b.dataset.id);
+          if (it) openQrModal(it);
+        });
+      });
+
+      grid.querySelectorAll(".btn-item-edit").forEach(b => {
+        b.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const targetId = b.dataset.id;
+          const it = items.find(x => x.id === targetId);
+          if (it) {
+            document.getElementById("form-item-id").value = it.id;
+            document.getElementById("form-title").value = it.title;
+            document.getElementById("form-category").value = it.category;
+            document.getElementById("form-icon").value = it.icon || "link";
+            document.getElementById("form-url").value = it.url;
+            document.getElementById("form-desc").value = it.desc || "";
+            document.getElementById("form-qr-url").value = it.qrUrl || "";
+            document.getElementById("form-schedule").value = it.scheduleDay || "";
+            setTimeDropdowns(sanitizeTimeStr(it.dueTime), sanitizeTimeStr(it.dueTime2));
+            document.getElementById("form-pinned").checked = !!it.pinned;
+            document.getElementById("form-modal-heading").textContent = "แก้ไขชื่อและข้อมูลระบบงาน";
+            openManageModal();
+          }
+        });
+      });
+
+      grid.querySelectorAll(".btn-item-delete").forEach(b => {
+        b.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const targetId = b.dataset.id;
+          const targetItem = items.find(x => x.id === targetId);
+          if (!targetItem) return;
+          if (!confirm(`คุณต้องการลบรายการ "${targetItem.title}" ใช่หรือไม่?`)) return;
+
+          ensureUserNamePrompt();
+          addChangeLog("delete", targetItem.title, "ลบรายการออกจากหน้าเว็บ");
+          items = items.filter(x => x.id !== targetId);
+          saveItems();
+          renderApp();
+          showToast(`ลบรายการ "${targetItem.title}" เรียบร้อยแล้ว`);
+        });
+      });
+
+      // Initialize 3D dynamic tilt & glare
+      init3DTilt();
+    }
+
+    // 3D Interactive Card Tilt with Cursor Glare Tracking
+    function init3DTilt() {
+      if (window.matchMedia("(pointer: coarse)").matches) return;
+      document.querySelectorAll(".tilt-card").forEach(card => {
+        let glare = card.querySelector(".glare-layer");
+        if (!glare) {
+          glare = document.createElement("div");
+          glare.className = "glare-layer";
+          card.appendChild(glare);
+        }
+
+        card.onmousemove = (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          const rotateX = ((centerY - y) / centerY) * 7.5;
+          const rotateY = ((x - centerX) / centerX) * 7.5;
+
+          card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-5px)`;
+          glare.style.opacity = "1";
+          glare.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255, 255, 255, 0.45) 0%, transparent 65%)`;
+        };
+
+        card.onmouseleave = () => {
+          card.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)";
+          if (glare) glare.style.opacity = "0";
+        };
+      });
+    }
+
+    // Open QR Code Fullscreen Modal
+    function openQrModal(item) {
+      const modal = document.getElementById("qr-modal");
+      const card = document.getElementById("qr-modal-card");
+      const titleEl = document.getElementById("qr-modal-title");
+      const descEl = document.getElementById("qr-modal-desc");
+      const imgEl = document.getElementById("qr-modal-image");
+      const linkEl = document.getElementById("qr-modal-link");
+      const badgeEl = document.getElementById("qr-modal-badge");
+
+      titleEl.textContent = item.title;
+      descEl.textContent = item.desc || "ยื่นหน้าจอนี้ให้ลูกค้าใช้กล้องมือถือสแกนได้ทันที";
+      badgeEl.textContent = CATEGORY_NAMES[item.category] || "QR Code";
+
+      const qrSource = item.qrUrl && item.qrUrl.trim() !== "" 
+        ? item.qrUrl 
+        : `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(item.url)}`;
+      
+      imgEl.src = qrSource;
+      linkEl.href = item.url;
+
+      document.getElementById("btn-copy-qr-url").onclick = () => {
+        copyToClipboard(item.url);
+      };
+
+      modal.classList.remove("hidden");
+      setTimeout(() => {
+        modal.classList.remove("opacity-0");
+        card.classList.remove("scale-95");
+        card.classList.add("scale-100");
+      }, 10);
+    }
+
+    function closeQrModal() {
+      const modal = document.getElementById("qr-modal");
+      const card = document.getElementById("qr-modal-card");
+      modal.classList.add("opacity-0");
+      card.classList.remove("scale-100");
+      card.classList.add("scale-95");
+      setTimeout(() => {
+        modal.classList.add("hidden");
+      }, 200);
+    }
+
+    // Open Manage / Add Modal
+    function openManageModal() {
+      const modal = document.getElementById("manage-modal");
+      modal.classList.remove("hidden");
+      setTimeout(() => {
+        modal.classList.remove("opacity-0");
+        modal.querySelector("div").classList.remove("scale-95");
+        modal.querySelector("div").classList.add("scale-100");
+      }, 10);
+      lucide.createIcons();
+    }
+
+    function closeManageModal() {
+      const modal = document.getElementById("manage-modal");
+      modal.classList.add("opacity-0");
+      modal.querySelector("div").classList.remove("scale-100");
+      modal.querySelector("div").classList.add("scale-95");
+      setTimeout(() => {
+        modal.classList.add("hidden");
+        document.getElementById("link-form").reset();
+      }, 200);
+    }
+
+    // Bind Category Filter Pills
+    document.querySelectorAll(".category-pill").forEach(pill => {
+      pill.addEventListener("click", () => {
+        document.querySelectorAll(".category-pill").forEach(p => {
+          p.className = "category-pill flex-shrink-0 px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all neu-btn text-slate-700 dark:text-slate-200";
+        });
+        pill.className = "category-pill active flex-shrink-0 px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all mint-pill-btn text-white";
+
+        currentCategory = pill.dataset.category;
+        renderMainGrid();
+        lucide.createIcons();
+      });
+    });
+
+    // Search input listener
+    const searchInput = document.getElementById("search-input");
+    const clearSearchBtn = document.getElementById("btn-clear-search");
+
+    searchInput.addEventListener("input", (e) => {
+      searchQuery = e.target.value;
+      if (searchQuery.length > 0) {
+        clearSearchBtn.classList.remove("hidden");
+      } else {
+        clearSearchBtn.classList.add("hidden");
+      }
+      renderMainGrid();
+      lucide.createIcons();
+    });
+
+    clearSearchBtn.addEventListener("click", () => {
+      searchInput.value = "";
+      searchQuery = "";
+      clearSearchBtn.classList.add("hidden");
+      renderMainGrid();
+      lucide.createIcons();
+      searchInput.focus();
+    });
+
+    // Theme toggle (Dark/Light mode)
+    const btnTheme = document.getElementById("btn-theme-toggle");
+    function initTheme() {
+      const isDark = localStorage.getItem("branch_theme") === "dark" || 
+        (!localStorage.getItem("branch_theme") && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      if (isDark) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    }
+
+    btnTheme.addEventListener("click", () => {
+      const isCurrentlyDark = document.documentElement.classList.contains("dark");
+      if (isCurrentlyDark) {
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("branch_theme", "light");
+      } else {
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("branch_theme", "dark");
+      }
+    });
+
+    // Form submission
+    const form = document.getElementById("link-form");
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const title = document.getElementById("form-title").value.trim();
+      const category = document.getElementById("form-category").value;
+      const icon = document.getElementById("form-icon").value.trim() || "link";
+      const url = document.getElementById("form-url").value.trim();
+      const desc = document.getElementById("form-desc").value.trim();
+      const qrUrl = document.getElementById("form-qr-url").value.trim();
+      const scheduleDay = document.getElementById("form-schedule").value;
+      const dueTime = document.getElementById("form-due-time").value;
+      const dueTime2 = document.getElementById("form-due-time-2").value;
+      const pinned = document.getElementById("form-pinned").checked;
+      const editId = document.getElementById("form-item-id").value;
+
+      if (editId) {
+        const index = items.findIndex(x => x.id === editId);
+        if (index !== -1) {
+          items[index] = {
+            ...items[index],
+            title,
+            category,
+            icon,
+            url,
+            desc,
+            qrUrl,
+            scheduleDay,
+            dueTime,
+            dueTime2,
+            pinned
+          };
+          ensureUserNamePrompt();
+          let timeDetail = [];
+          if (dueTime) timeDetail.push(`รอบ 1: ${dueTime} น.`);
+          if (dueTime2) timeDetail.push(`รอบ 2: ${dueTime2} น.`);
+          const detailStr = timeDetail.length > 0 ? timeDetail.join(", ") : "ทั่วไป";
+          addChangeLog("edit", title, `แก้ไขข้อมูล (${detailStr})`);
+          saveItems();
+          renderApp();
+          closeManageModal();
+          showToast("บันทึกการแก้ไขเรียบร้อยแล้ว");
+          return;
+        }
+      }
+
+      const newItem = {
+        id: "item-" + Date.now(),
+        title,
+        category,
+        icon,
+        url,
+        desc,
+        qrUrl,
+        scheduleDay,
+        dueTime,
+        dueTime2,
+        pinned,
+        bgColor: "clay-icon text-teal-600"
+      };
+
+      ensureUserNamePrompt();
+      let timeDetail = [];
+      if (dueTime) timeDetail.push(`รอบ 1: ${dueTime} น.`);
+      if (dueTime2) timeDetail.push(`รอบ 2: ${dueTime2} น.`);
+      const detailStr = timeDetail.length > 0 ? timeDetail.join(", ") : "ทั่วไป";
+      addChangeLog("add", title, `เพิ่มรายการใหม่ ในหมวดหมู่ ${CATEGORY_NAMES[category] || category} (${detailStr})`);
+
+      items.unshift(newItem);
+      saveItems();
+      renderApp();
+      closeManageModal();
+      showToast("เพิ่มรายการใหม่เรียบร้อยแล้ว");
+    });
+
+    // Reset Form button
+    document.getElementById("btn-cancel-form").addEventListener("click", () => {
+      form.reset();
+      document.getElementById("form-item-id").value = "";
+      document.getElementById("form-schedule").value = "";
+      setTimeDropdowns("", "");
+    });
+
+    // Modal Triggers
+    function openAddModal() {
+      form.reset();
+      document.getElementById("form-item-id").value = "";
+      document.getElementById("form-schedule").value = "";
+      setTimeDropdowns("", "");
+      document.getElementById("form-modal-heading").textContent = "จัดการรายการลิงก์และ QR Code";
+      openManageModal();
+    }
+
+    document.getElementById("btn-open-manage-modal").addEventListener("click", openAddModal);
+    document.getElementById("btn-add-quick").addEventListener("click", openAddModal);
+    document.getElementById("btn-close-manage-modal").addEventListener("click", closeManageModal);
+    document.getElementById("btn-close-qr-modal").addEventListener("click", closeQrModal);
+
+    // Sync Modal open/close & handlers
+    function openSyncModal() {
+      const modal = document.getElementById("sync-modal");
+      if (!modal) return;
+      updateSyncUI();
+      modal.classList.remove("hidden");
+      setTimeout(() => {
+        modal.classList.remove("opacity-0");
+        const card = modal.querySelector("div");
+        if (card) {
+          card.classList.remove("scale-95");
+          card.classList.add("scale-100");
+        }
+      }, 10);
+      lucide.createIcons();
+    }
+
+    function closeSyncModal() {
+      const modal = document.getElementById("sync-modal");
+      if (!modal) return;
+      modal.classList.add("opacity-0");
+      const card = modal.querySelector("div");
+      if (card) {
+        card.classList.remove("scale-100");
+        card.classList.add("scale-95");
+      }
+      setTimeout(() => {
+        modal.classList.add("hidden");
+      }, 200);
+    }
+
+    const openSyncBtn = document.getElementById("btn-open-sync-modal");
+    if (openSyncBtn) openSyncBtn.addEventListener("click", openSyncModal);
+
+    const quickOpenSyncBtn = document.getElementById("btn-quick-open-sync");
+    if (quickOpenSyncBtn) {
+      quickOpenSyncBtn.addEventListener("click", () => {
+        closeManageModal();
+        setTimeout(openSyncModal, 220);
+      });
+    }
+
+    const closeSyncBtn = document.getElementById("btn-close-sync-modal");
+    if (closeSyncBtn) closeSyncBtn.addEventListener("click", closeSyncModal);
+
+    const syncModalOverlay = document.getElementById("sync-modal");
+    if (syncModalOverlay) {
+      syncModalOverlay.addEventListener("click", (e) => {
+        if (e.target.id === "sync-modal") closeSyncModal();
+      });
+    }
+
+    // Save Sheet URL
+    const saveSheetUrlBtn = document.getElementById("btn-save-sheet-url");
+    if (saveSheetUrlBtn) {
+      saveSheetUrlBtn.addEventListener("click", () => {
+        const urlInput = document.getElementById("input-sheet-api-url").value.trim();
+        setGoogleSheetUrl(urlInput);
+        if (urlInput) {
+          showToast("บันทึก URL แล้ว กำลังเชื่อมต่อ...");
+          fetchFromGoogleSheet(false);
+        } else {
+          showToast("ล้าง URL เรียบร้อยแล้ว (กลับสู่โหมดออฟไลน์)");
+        }
+      });
+    }
+
+    // Fetch Now
+    const fetchNowBtn = document.getElementById("btn-fetch-now");
+    if (fetchNowBtn) {
+      fetchNowBtn.addEventListener("click", () => {
+        fetchFromGoogleSheet(false);
+      });
+    }
+
+    // Push All to Sheet
+    const pushAllBtn = document.getElementById("btn-push-all-to-sheet");
+    if (pushAllBtn) {
+      pushAllBtn.addEventListener("click", () => {
+        pushItemsToGoogleSheet(false);
+      });
+    }
+
+    // Disconnect Sheet
+    const disconnectBtn = document.getElementById("btn-disconnect-sheet");
+    if (disconnectBtn) {
+      disconnectBtn.addEventListener("click", () => {
+        if (confirm("ต้องการตัดการเชื่อมต่อ Google Sheets หรือไม่? (ข้อมูลที่บันทึกไว้ในเครื่องจะไม่หาย)")) {
+          setGoogleSheetUrl("");
+          document.getElementById("input-sheet-api-url").value = "";
+          showToast("ตัดการเชื่อมต่อเรียบร้อยแล้ว");
+        }
+      });
+    }
+
+    // Close on click outside
+    document.getElementById("qr-modal").addEventListener("click", (e) => {
+      if (e.target.id === "qr-modal") closeQrModal();
+    });
+    document.getElementById("manage-modal").addEventListener("click", (e) => {
+      if (e.target.id === "manage-modal") closeManageModal();
+    });
+
+    // Export Data to JSON
+    document.getElementById("btn-export-json").addEventListener("click", () => {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(items, null, 2));
+      const downloadAnchor = document.createElement("a");
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `branch-links-backup-${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast("ส่งออกไฟล์สำรอง JSON สำเร็จ");
+    });
+
+    // Import Data from JSON
+    document.getElementById("input-import-json").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const imported = JSON.parse(event.target.result);
+          if (Array.isArray(imported)) {
+            items = imported;
+            saveItems();
+            renderApp();
+            closeManageModal();
+            showToast("นำเข้าข้อมูลเรียบร้อยแล้ว!");
+          } else {
+            showToast("รูปแบบไฟล์ไม่ถูกต้อง");
+          }
+        } catch (err) {
+          showToast("ไม่สามารถอ่านไฟล์ JSON ได้");
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    // Reset Defaults
+    document.getElementById("btn-reset-defaults").addEventListener("click", () => {
+      items = [...DEFAULT_ITEMS];
+      saveItems();
+      renderApp();
+      closeManageModal();
+      showToast("คืนค่าตัวอย่างตั้งต้นเรียบร้อยแล้ว");
+    });
+
+    // Portal Title Editor & Persistence
+    function editPortalTitle() {
+      const currentTitle = document.getElementById("portal-title-text").textContent.trim();
+      const newTitle = prompt("ระบุชื่อระบบงาน / ชื่อสาขาที่ต้องการ:", currentTitle);
+      if (newTitle && newTitle.trim() !== "") {
+        document.getElementById("portal-title-text").textContent = newTitle.trim();
+        localStorage.setItem("branch_portal_title", newTitle.trim());
+        document.title = `${newTitle.trim()} - ศูนย์รวมระบบงานและลิงก์สาขา`;
+        showToast("เปลี่ยนชื่อระบบเรียบร้อยแล้ว");
+      }
+    }
+
+    function loadPortalTitle() {
+      const savedTitle = localStorage.getItem("branch_portal_title");
+      if (savedTitle) {
+        document.getElementById("portal-title-text").textContent = savedTitle;
+        document.title = `${savedTitle} - ศูนย์รวมระบบงานและลิงก์สาขา`;
+      }
+    }
+
+    document.getElementById("portal-title-text").addEventListener("click", editPortalTitle);
+    document.getElementById("btn-edit-portal-title").addEventListener("click", editPortalTitle);
+
+    // Live 24-Hour Digital Clock Updater
+    function updateLive24Clock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const s = String(now.getSeconds()).padStart(2, '0');
+      const timeEl = document.getElementById("live-clock-time");
+      if (timeEl) {
+        timeEl.textContent = `${h}:${m}:${s}`;
+      }
+    }
+
+    // Single-Dropdown 24-Hour Selector System (คลิกเดียวจบ ไร้ AM/PM)
+    const STANDARD_24H_OPTIONS = [
+      { val: "", text: "-- ไม่ระบุเวลา --" },
+      { val: "07:30", text: "07:30 น." },
+      { val: "08:00", text: "08:00 น." },
+      { val: "08:30", text: "08:30 น." },
+      { val: "09:00", text: "09:00 น. (เข้างาน / รอบเช้า)" },
+      { val: "09:30", text: "09:30 น." },
+      { val: "10:00", text: "10:00 น." },
+      { val: "10:30", text: "10:30 น." },
+      { val: "11:00", text: "11:00 น." },
+      { val: "11:30", text: "11:30 น." },
+      { val: "12:00", text: "12:00 น. (ก่อนเที่ยง)" },
+      { val: "12:30", text: "12:30 น." },
+      { val: "13:00", text: "13:00 น." },
+      { val: "13:30", text: "13:30 น." },
+      { val: "14:00", text: "14:00 น." },
+      { val: "14:30", text: "14:30 น." },
+      { val: "15:00", text: "15:00 น. (รอบบ่าย)" },
+      { val: "15:30", text: "15:30 น." },
+      { val: "16:00", text: "16:00 น." },
+      { val: "16:30", text: "16:30 น. (ปิดยอดสาขา)" },
+      { val: "17:00", text: "17:00 น." },
+      { val: "17:30", text: "17:30 น. (เลิกงาน / รอบเย็น)" },
+      { val: "18:00", text: "18:00 น." },
+      { val: "18:30", text: "18:30 น." },
+      { val: "19:00", text: "19:00 น." },
+      { val: "20:00", text: "20:00 น." },
+      { val: "21:00", text: "21:00 น." }
+    ];
+
+    function init24HourDropdowns() {
+      const selects = [
+        document.getElementById("form-due-time"),
+        document.getElementById("form-due-time-2")
+      ];
+
+      selects.forEach(sel => {
+        if (!sel) return;
+        sel.innerHTML = "";
+        STANDARD_24H_OPTIONS.forEach(opt => {
+          const optEl = document.createElement("option");
+          optEl.value = opt.val;
+          optEl.textContent = opt.text;
+          sel.appendChild(optEl);
+        });
+      });
+    }
+
+    function setTimeDropdownValue(sel, val) {
+      if (!sel) return;
+      const cleanVal = (val || "").trim();
+      if (!cleanVal) {
+        sel.value = "";
+        return;
+      }
+      let exists = Array.from(sel.options).some(o => o.value === cleanVal);
+      if (!exists) {
+        const customOpt = document.createElement("option");
+        customOpt.value = cleanVal;
+        customOpt.textContent = `${cleanVal} น.`;
+        sel.appendChild(customOpt);
+      }
+      sel.value = cleanVal;
+    }
+
+    function setTimeDropdowns(time1, time2) {
+      setTimeDropdownValue(document.getElementById("form-due-time"), time1);
+      setTimeDropdownValue(document.getElementById("form-due-time-2"), time2);
+    }
+
+    // ==========================================
+    // Change Log & Audit System (ใครเพิ่ม แก้ไข ลบ)
+    // ==========================================
+    const LOG_STORAGE_KEY = "branch_portal_change_logs";
+    const USER_STORAGE_KEY = "branch_portal_user_name";
+
+    function getCurrentUser() {
+      const stored = localStorage.getItem(USER_STORAGE_KEY);
+      if (stored && stored.trim() !== "") {
+        return stored.trim();
+      }
+      return "เจ้าหน้าที่สาขา";
+    }
+
+    function ensureUserNamePrompt() {
+      const current = localStorage.getItem(USER_STORAGE_KEY);
+      if (!current || current.trim() === "" || current === "เจ้าหน้าที่สาขา") {
+        const inputName = prompt("โปรดระบุชื่อเล่น หรือรหัสพนักงานของคุณ (ระบบจะจำไว้เพื่อบันทึกประวัติ):", "");
+        if (inputName && inputName.trim() !== "") {
+          localStorage.setItem(USER_STORAGE_KEY, inputName.trim());
+          updateCurrentUserUI();
+        }
+      }
+    }
+
+    function updateCurrentUserUI() {
+      const user = getCurrentUser();
+      const el = document.getElementById("current-user-display");
+      if (el) el.textContent = `ผู้ใช้: ${user}`;
+    }
+
+    function changeUserName() {
+      const current = localStorage.getItem(USER_STORAGE_KEY) || "";
+      const newName = prompt("ระบุชื่อเล่น หรือรหัสพนักงานของคุณสำหรับบันทึกประวัติ:", current);
+      if (newName && newName.trim() !== "") {
+        localStorage.setItem(USER_STORAGE_KEY, newName.trim());
+        updateCurrentUserUI();
+        showToast(`บันทึกชื่อผู้ใช้: ${newName.trim()}`);
+      }
+    }
+
+    function getChangeLogs() {
+      try {
+        const raw = localStorage.getItem(LOG_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveChangeLogs(logs) {
+      localStorage.setItem(LOG_STORAGE_KEY, JSON.stringify(logs.slice(0, 50)));
+    }
+
+    function format24LogTime(date) {
+      const d = String(date.getDate()).padStart(2, "0");
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const y = date.getFullYear() + 543;
+      const hh = String(date.getHours()).padStart(2, "0");
+      const mm = String(date.getMinutes()).padStart(2, "0");
+      const ss = String(date.getSeconds()).padStart(2, "0");
+      return `${d}/${m}/${y} ${hh}:${mm}:${ss} น.`;
+    }
+
+    function addChangeLog(type, title, detail) {
+      const logs = getChangeLogs();
+      const newLog = {
+        id: "log-" + Date.now(),
+        timestamp: new Date().toISOString(),
+        timeFormatted: format24LogTime(new Date()),
+        user: getCurrentUser(),
+        type: type, // 'add' | 'edit' | 'delete'
+        title: title || "ไม่ระบุชื่อ",
+        detail: detail || ""
+      };
+      logs.unshift(newLog);
+      saveChangeLogs(logs);
+      renderChangeLogs();
+
+      // Push to Google Sheets AuditLogs tab in background
+      sendAuditLogToGoogleSheet(type, title, detail);
+    }
+
+    async function sendAuditLogToGoogleSheet(type, title, detail) {
+      const url = getGoogleSheetUrl();
+      if (!url) return;
+      try {
+        await fetch(url, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "log",
+            type: type,
+            title: title,
+            user: getCurrentUser(),
+            detail: detail || ""
+          })
+        });
+      } catch (err) {
+        console.warn("Audit log cloud push error:", err);
+      }
+    }
+
+    function mergeCloudLogs(cloudLogs) {
+      if (!Array.isArray(cloudLogs) || cloudLogs.length === 0) return;
+      const localLogs = getChangeLogs();
+      const combined = [...cloudLogs];
+
+      localLogs.forEach(loc => {
+        const exists = combined.some(c => 
+          (c.timeFormatted === loc.timeFormatted && c.title === loc.title) ||
+          (c.id && loc.id && c.id === loc.id)
+        );
+        if (!exists) {
+          combined.push(loc);
+        }
+      });
+
+      saveChangeLogs(combined);
+      renderChangeLogs();
+    }
+
+    function openLogModal() {
+      renderChangeLogs();
+      const modal = document.getElementById("log-modal");
+      if (!modal) return;
+      modal.classList.remove("hidden");
+      setTimeout(() => {
+        modal.classList.remove("opacity-0");
+        const card = document.getElementById("log-modal-card");
+        if (card) {
+          card.classList.remove("scale-95");
+          card.classList.add("scale-100");
+        }
+      }, 10);
+      lucide.createIcons();
+    }
+
+    function closeLogModal() {
+      const modal = document.getElementById("log-modal");
+      if (!modal) return;
+      modal.classList.add("opacity-0");
+      const card = document.getElementById("log-modal-card");
+      if (card) {
+        card.classList.remove("scale-100");
+        card.classList.add("scale-95");
+      }
+      setTimeout(() => {
+        modal.classList.add("hidden");
+      }, 200);
+    }
+
+    function renderChangeLogs() {
+      const container = document.getElementById("change-log-list");
+      const badgeCount = document.getElementById("log-count-badge");
+      const pill = document.getElementById("log-count-pill");
+      if (!container) return;
+
+      const logs = getChangeLogs();
+      if (badgeCount) badgeCount.textContent = `${logs.length} รายการ`;
+      if (pill) pill.textContent = logs.length;
+
+      if (logs.length === 0) {
+        container.innerHTML = `
+          <div class="py-8 text-center text-slate-400 dark:text-slate-500 text-xs">
+            <i data-lucide="inbox" class="w-7 h-7 mx-auto mb-2 opacity-50"></i>
+            <p>ยังไม่มีประวัติการเพิ่ม แก้ไข หรือลบข้อมูล</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      container.innerHTML = "";
+      logs.forEach(log => {
+        let typeBadge = "";
+        let borderAccent = "";
+
+        if (log.type === "add") {
+          typeBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 flex items-center gap-1 flex-shrink-0"><i data-lucide="plus" class="w-3 h-3"></i> เพิ่มข้อมูล</span>`;
+          borderAccent = "border-l-4 border-l-emerald-500";
+        } else if (log.type === "edit") {
+          typeBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-700 flex items-center gap-1 flex-shrink-0"><i data-lucide="pencil" class="w-3 h-3"></i> แก้ไขข้อมูล</span>`;
+          borderAccent = "border-l-4 border-l-amber-500";
+        } else if (log.type === "delete") {
+          typeBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-700 flex items-center gap-1 flex-shrink-0"><i data-lucide="trash-2" class="w-3 h-3"></i> ลบข้อมูล</span>`;
+          borderAccent = "border-l-4 border-l-rose-500";
+        }
+
+        const row = document.createElement("div");
+        row.className = `p-3 sm:p-3.5 rounded-2xl neu-surface bg-white/40 dark:bg-slate-900/40 border border-slate-200/70 dark:border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs ${borderAccent} transition-all`;
+
+        row.innerHTML = `
+          <div class="flex items-start sm:items-center gap-2.5 min-w-0">
+            ${typeBadge}
+            <div class="min-w-0">
+              <span class="font-bold text-slate-800 dark:text-white truncate block sm:inline">${log.title}</span>
+              ${log.detail ? `<span class="text-slate-500 dark:text-slate-400 text-[11px] block sm:inline sm:ml-2">(${log.detail})</span>` : ""}
+            </div>
+          </div>
+          <div class="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 flex-shrink-0 self-end sm:self-center">
+            <span class="font-semibold text-teal-700 dark:text-teal-400 flex items-center gap-1">
+              <i data-lucide="user" class="w-3 h-3"></i> โดย: ${log.user}
+            </span>
+            <span class="flex items-center gap-1 text-slate-400">
+              <i data-lucide="clock" class="w-3 h-3"></i> ${log.timeFormatted}
+            </span>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      lucide.createIcons();
+    }
+
+    function exportLogsToCSV() {
+      const logs = getChangeLogs();
+      if (logs.length === 0) {
+        showToast("ยังไม่มีข้อมูลประวัติสำหรับส่งออก");
+        return;
+      }
+      let csvContent = "\uFEFF"; // UTF-8 BOM for Thai language in Excel
+      csvContent += "ลำดับ,ประเภท,ชื่องาน,รายละเอียด,ผู้ทำรายการ,วันเวลา\n";
+      logs.forEach((l, idx) => {
+        const typeThai = l.type === "add" ? "เพิ่มข้อมูล" : (l.type === "edit" ? "แก้ไขข้อมูล" : "ลบข้อมูล");
+        const escapeCSV = (str) => `"${(str || '').replace(/"/g, '""')}"`;
+        csvContent += `${idx + 1},${escapeCSV(typeThai)},${escapeCSV(l.title)},${escapeCSV(l.detail)},${escapeCSV(l.user)},${escapeCSV(l.timeFormatted)}\n`;
+      });
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `branch-audit-log-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast("ดาวน์โหลดไฟล์ประวัติ CSV สำเร็จ");
+    }
+
+    function clearChangeLogs() {
+      const logs = getChangeLogs();
+      if (logs.length === 0) {
+        showToast("ไม่มีข้อมูลประวัติให้ล้าง");
+        return;
+      }
+      if (confirm("ต้องการล้างประวัติการเปลี่ยนแปลงทั้งหมดใช่หรือไม่?")) {
+        localStorage.removeItem(LOG_STORAGE_KEY);
+        renderChangeLogs();
+        showToast("ล้างประวัติเรียบร้อยแล้ว");
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      initTheme();
+      loadPortalTitle();
+      loadItems();
+      init24HourDropdowns();
+      updateCurrentUserUI();
+      updateSyncUI();
+      renderApp();
+
+      // If Google Sheets is configured, fetch latest updates in background
+      if (getGoogleSheetUrl()) {
+        fetchFromGoogleSheet(true);
+      }
+
+      // Bind User Profile button
+      const userBtn = document.getElementById("btn-user-profile");
+      if (userBtn) userBtn.addEventListener("click", changeUserName);
+
+      // Bind Log buttons & Modal
+      const openLogBtn = document.getElementById("btn-open-log-modal");
+      if (openLogBtn) openLogBtn.addEventListener("click", openLogModal);
+
+      const closeLogBtn = document.getElementById("btn-close-log-modal");
+      if (closeLogBtn) closeLogBtn.addEventListener("click", closeLogModal);
+
+      const logModalOverlay = document.getElementById("log-modal");
+      if (logModalOverlay) {
+        logModalOverlay.addEventListener("click", (e) => {
+          if (e.target.id === "log-modal") closeLogModal();
+        });
+      }
+
+      const exportLogBtn = document.getElementById("btn-export-log-csv");
+      if (exportLogBtn) exportLogBtn.addEventListener("click", exportLogsToCSV);
+
+      const clearLogBtn = document.getElementById("btn-clear-change-log");
+      if (clearLogBtn) clearLogBtn.addEventListener("click", clearChangeLogs);
+
+      renderChangeLogs();
+
+      // Real-time 24-Hour Digital Clock ticker
+      updateLive24Clock();
+      setInterval(updateLive24Clock, 1000);
+
+      // Recalculate schedule countdown and blinking urgency alerts every minute
+      setInterval(() => {
+        renderApp();
+      }, 60000);
+
+      // Auto-sync updates & logs from Google Sheets every 3 minutes in background
+      setInterval(() => {
+        if (getGoogleSheetUrl() && !isCloudSyncing) {
+          fetchFromGoogleSheet(true);
+        }
+      }, 180000);
+    });
+  </script>
+</body>
+</html>
