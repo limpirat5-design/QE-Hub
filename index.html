@@ -1044,18 +1044,18 @@
             dueTime: sanitizeTimeStr(it.dueTime),
             dueTime2: sanitizeTimeStr(it.dueTime2)
           }));
-          if (updated) saveItems();
+          if (updated) saveItems(false);
         } catch (e) {
           items = [...DEFAULT_ITEMS];
         }
       } else {
         items = [...DEFAULT_ITEMS];
-        saveItems();
+        saveItems(false);
       }
     }
 
-    // Save to LocalStorage and optionally sync to Google Sheets
-    function saveItems(syncToCloud = true) {
+    // Save to LocalStorage (only syncs whole batch if explicitly requested)
+    function saveItems(syncToCloud = false) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
       if (syncToCloud && getGoogleSheetUrl()) {
         pushItemsToGoogleSheet(true); // background silent sync
@@ -1144,8 +1144,10 @@
 
           if (!silent) showToast(`ดึงข้อมูลสำเร็จ (${items.length} รายการ)`);
         } else if (result && result.data && result.data.length === 0) {
-          if (!silent) showToast("ใน Google Sheets ยังไม่มีข้อมูล กำลังส่งข้อมูลปัจจุบันขึ้นไป...");
-          await pushItemsToGoogleSheet(silent);
+          if (!silent) {
+            showToast("ใน Google Sheets ยังไม่มีข้อมูล กำลังส่งข้อมูลปัจจุบันขึ้นไป...");
+            await pushItemsToGoogleSheet(silent);
+          }
         } else {
           if (!silent) showToast("ไม่พบรายการข้อมูลใน Google Sheets");
         }
@@ -1158,7 +1160,65 @@
       }
     }
 
-    // ส่งข้อมูลทั้งหมดขึ้น Google Sheets (Sync ทั้งหมด)
+    // บันทึก/อัปเดตรายการเดี่ยวขึ้น Google Sheets ทันที (Atomic Save - ไม่ลบข้อมูลผู้อื่น)
+    async function saveItemToGoogleSheet(item) {
+      const url = getGoogleSheetUrl();
+      if (!url) return;
+
+      isCloudSyncing = true;
+      updateSyncUI();
+
+      try {
+        await fetch(url, {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify({
+            action: "save",
+            item: item,
+            user: getCurrentUser()
+          })
+        });
+      } catch (err) {
+        console.warn("Save item to sheet error:", err);
+      } finally {
+        isCloudSyncing = false;
+        updateSyncUI();
+      }
+    }
+
+    // ลบรายการเดี่ยวออกจาก Google Sheets ทันที (Atomic Delete - ไม่ลบข้อมูลผู้อื่น)
+    async function deleteItemFromGoogleSheet(id) {
+      const url = getGoogleSheetUrl();
+      if (!url) return;
+
+      isCloudSyncing = true;
+      updateSyncUI();
+
+      try {
+        await fetch(url, {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify({
+            action: "delete",
+            id: id,
+            user: getCurrentUser()
+          })
+        });
+      } catch (err) {
+        console.warn("Delete item from sheet error:", err);
+      } finally {
+        isCloudSyncing = false;
+        updateSyncUI();
+      }
+    }
+
+    // ส่งข้อมูลทั้งหมดขึ้น Google Sheets (Sync ทั้งหมด - ใช้เฉพาะเมื่อกดปุ่มส่งทั้งหมดเท่านั้น)
     async function pushItemsToGoogleSheet(silent = false) {
       const url = getGoogleSheetUrl();
       if (!url) return;
@@ -1701,8 +1761,9 @@
           ensureUserNamePrompt();
           addChangeLog("delete", targetItem.title, "ลบรายการออกจากหน้าเว็บ");
           items = items.filter(x => x.id !== targetId);
-          saveItems();
+          saveItems(false);
           renderApp();
+          deleteItemFromGoogleSheet(targetId);
           showToast(`ลบรายการ "${targetItem.title}" เรียบร้อยแล้ว`);
         });
       });
@@ -1909,8 +1970,9 @@
           if (dueTime2) timeDetail.push(`รอบ 2: ${dueTime2} น.`);
           const detailStr = timeDetail.length > 0 ? timeDetail.join(", ") : "ทั่วไป";
           addChangeLog("edit", title, `แก้ไขข้อมูล (${detailStr})`);
-          saveItems();
+          saveItems(false);
           renderApp();
+          saveItemToGoogleSheet(items[existingIndex]);
           closeManageModal();
           showToast("บันทึกการแก้ไขเรียบร้อยแล้ว");
           return;
@@ -1940,8 +2002,9 @@
       addChangeLog("add", title, `เพิ่มรายการใหม่ ในหมวดหมู่ ${CATEGORY_NAMES[category] || category} (${detailStr})`);
 
       items.unshift(newItem);
-      saveItems();
+      saveItems(false);
       renderApp();
+      saveItemToGoogleSheet(newItem);
       closeManageModal();
       showToast("เพิ่มรายการใหม่เรียบร้อยแล้ว");
     });
@@ -2528,12 +2591,19 @@
         renderApp();
       }, 60000);
 
-      // Auto-sync updates & logs from Google Sheets every 3 minutes in background
+      // Auto-sync updates & logs from Google Sheets every 1 minute in background
       setInterval(() => {
-        if (getGoogleSheetUrl() && !isCloudSyncing) {
+        if (document.visibilityState === "visible" && getGoogleSheetUrl() && !isCloudSyncing) {
           fetchFromGoogleSheet(true);
         }
-      }, 180000);
+      }, 60000);
+
+      // Instant refresh when user switches back to this tab
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible" && getGoogleSheetUrl() && !isCloudSyncing) {
+          fetchFromGoogleSheet(true);
+        }
+      });
     });
   </script>
 </body>
